@@ -134,7 +134,7 @@ const CAST={
 };
 const LEAVE='18일 · 오후 반차';
 const SCRIPT={
- lift:[['me','나 진짜 오후 반차 쓴다.','think'],['me','말리지 마라 💢','think']],
+ lift:[['me','나 진짜 오후 반차 쓴다.','think'],['me','말리지 마라','think']],
  ponder:[['me','말할까… 말까…','think'],['me','그래, 지금이다.','think']],
  s1:[['me','주임님, 저 18일 오후에 반차 좀 써도 될까요?'],
      ['s2','와 나 때는 대체휴가 다 못 썼는데…'],['s2','나는 작년에 4개인가 남았던 거 같은데.'],
@@ -143,10 +143,10 @@ const SCRIPT={
  lead:[['lead','○○ 주임한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
  boss:[['me','지사장님께 결재 상신… 제발!']],
  bossOk:[['me','승인 떴다!!! 🎉']],
- bossNo:[['boss','당일 반차 올리지 마라, 다들.'],['me','반려…? 😱']],
+ bossNo:[['boss','당일 반차 올리지 마라, 다들.'],['me','에반데 ...']],
  girlsChat:[['shiun','오늘 커피 드시나요?'],['heeyeon','저는 바닐라라떼요'],['sunhye','저는 아이스아메리카노요 ㅎㅎ']],
  girlsOk:[['me','주임님들!! 저 18일 오후 반차 승인 났어요!!'],['shiun','와 축하드려요!! 잘 쉬다 오세요 ♡'],['heeyeon','너무 부러워요… 뭐 하실 거예요??'],['sunhye','반차 성공 축하드려요 🎉'],['heeyeon','맛있는 거 드시고 사진 보내 주세요!!'],['sunhye','진짜 부러워요~ 잘 다녀오세요!']],
- girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['heeyeon','네?? 회사 폭파시켜 드릴까요? 💢'],['sunhye','회사 거지같네요!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요 💢'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
+ girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['heeyeon','네?? 회사 폭파시켜 드릴까요?'],['sunhye','회사 거지같네요!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
 };
 
 (async function(){
@@ -629,7 +629,7 @@ function setPlay(p){st.playing=p;$('#play').textContent=p?'일시정지':(st.a&&
 function render(){
   const s=STEPS[st.i];
   BOXES.forEach((b,i)=>{const el=$('#box'+i);const v=st.stamps[i];el.classList.toggle('done',!!v);el.classList.toggle('rej',v==='반려');el.querySelector('i').textContent=v||'';el.classList.toggle('now',i+2===st.i);});
-  const n=Object.values(st.stamps).filter(v=>v==='승인').length;$('#sub').textContent=st.stamps[2]==='반려'?'반려됨 💢':'결재 '+n+' / 3';
+  const n=Object.values(st.stamps).filter(v=>v==='승인').length;$('#sub').textContent=st.stamps[2]==='반려'?'반려됨':'결재 '+n+' / 3';
   $('#who').textContent=s.who;$('#title').textContent=s.title;const a=st.a;
   if(!a)return;
   $('#line').textContent=a.t==='drive'?'주차하는 중… 🚗':a.t==='walk'?'걸어가는 중…':a.t==='liftRide'||a.t==='liftWait'?'올라가는 중… 🛗':a.t==='say'?((a.think?'(속마음) ':CAST[a.who].name+': ')+a.text):a.t==='send'?'결재 올리는 중… 📨':a.t==='choice'?'지사장님 결재 결과는?':$('#line').textContent;
@@ -661,7 +661,7 @@ function boom(){boomEl.classList.remove('on');void boomEl.offsetWidth;boomEl.cla
   for(let i=0;i<26;i++){const m=new THREE.Mesh(puffGeo,new THREE.MeshStandardMaterial({color:CL(i%3?0x9a9a9a:0xf2a640),roughness:1,transparent:true,opacity:.9,emissive:CL(i%3?0x000000:0xff7a1a),emissiveIntensity:i%3?0:.8}));
     const a=Math.random()*Math.PI*2,r=Math.random()*8;m.position.set(Math.cos(a)*r,1+Math.random()*3,-14+Math.sin(a)*r);m.userData={v:V3(Math.cos(a)*4,4+Math.random()*5,Math.sin(a)*4),t:0};m.scale.setScalar(.6);scene.add(m);puffs.push(m);}}
 const spriteFor=txt=>canvasTex((g,s)=>{g.font=(s*.75)+'px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,s/2,s/2+4);},64);
-const SPR={love:new THREE.SpriteMaterial({map:heartTex,transparent:true,depthWrite:false}),angry:new THREE.SpriteMaterial({map:spriteFor('💢'),transparent:true,depthWrite:false})};
+const SPR={love:new THREE.SpriteMaterial({map:heartTex,transparent:true,depthWrite:false}),angry:new THREE.SpriteMaterial({map:spriteFor(''),transparent:true,depthWrite:false})};
 const floaties=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(SPR.love);sp.visible=false;sp.scale.setScalar(.8);scene.add(sp);floaties.push({sp,t:0});}
 let floatT=0;
 
@@ -724,7 +724,7 @@ function tick(){
     const u=g.userData;u.lookYaw=yawTo(u.lookYaw,w,Math.min(1,dt*4));if(!u.fig)g.rotation.y=u.lookYaw;pose(g,false,talkWho===id);
     g.position.y=seatY(id)+(st.mood==='angry'&&engaged?Math.abs(Math.sin(T*9+id.length))*.35:st.mood==='love'&&engaged&&talkWho===id?Math.abs(Math.sin(T*6))*.15:0);
     if(!u.fig)u.head.rotation.y=engaged?0:Math.sin(T*.6+id.length)*.2;});
-  if(st.mood&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shiun','heeyeon','sunhye'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
+  if(st.mood==='love'&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shiun','heeyeon','sunhye'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
   floaties.forEach(f=>{if(!f.sp.visible)return;f.t+=dt;f.sp.position.y+=dt*1.6;f.sp.scale.setScalar(.8*(1-f.t/2)+.2);if(f.t>1.8)f.sp.visible=false;});
   for(let i=puffs.length-1;i>=0;i--){const m=puffs[i],u=m.userData;u.t+=dt;m.position.addScaledVector(u.v,dt);u.v.multiplyScalar(.96);m.scale.setScalar(.6+u.t*2.2);m.material.opacity=Math.max(0,.9-u.t*.45);if(u.t>2.2){scene.remove(m);puffs.splice(i,1);}}
   ledA.emissiveIntensity=.4+.6*(Math.sin(T*7)>0?1:0);ledB.emissiveIntensity=.4+.6*(Math.sin(T*5+1)>0?1:0);
