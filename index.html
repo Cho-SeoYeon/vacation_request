@@ -126,7 +126,7 @@ const CAST={
  s1:     {name:'주임님',fig:'approver'},
  s2:     {name:'사수님',fig:'senior'},
  lead:   {name:'팀장님',fig:'lead'},
- boss:   {name:'지사장님',top:0x2b2e38,pants:0x2b2e38,hair:0x9a9a9a,hairStyle:'part',tie:0x7a2a3b,glasses:true,scale:.88},
+ boss:   {name:'지사장님',fig:'boss'},
  shiun:  {name:'시운 주임님',fig:'shiun'},
  heeyeon:{name:'희연 주임님',fig:'heeyeon'},
  sunhye: {name:'선혜 주임님',fig:'sunhye'}
@@ -293,7 +293,7 @@ desk(-12,ROW_Z,0,{mug:0xf2b544,plant:true,noChair:true});sign('팀장','#3b4458'
 const GIRLS_Z=14;
 desk(-16,GIRLS_Z,0,{mug:0xff9ad5,plant:true});desk(-8,GIRLS_Z,0,{mug:0x1e1f24});
 // branch manager's office
-{const d=desk(0,-18,Math.PI,{mug:0x7a2a6b,noChair:true});chair(0,-19.4,0,0x5a2a2a);mesh(RB(4.6,.2,2.2,.08),M(0x6b4a34),0,1.52,-18);
+{const d=desk(0,-18,Math.PI,{mug:0x7a2a6b,noChair:true});mesh(RB(4.6,.2,2.2,.08),M(0x6b4a34),0,1.52,-18);
   mesh(RB(5,1.1,1.6,.4),M(0x8a3b3b),-5,.55,-21.5);mesh(RB(5,1.4,.5,.2),M(0x8a3b3b),-5,1.2,-22.4);plant(5.5,-22,1.1);}
 // meeting room: big table + TV dashboard
 {mesh(RB(8,.2,4,.9),deskTop,21,1.5,-15);mesh(new THREE.CylinderGeometry(.25,.4,1.4,10),deskLeg,21,.7,-15);
@@ -386,8 +386,9 @@ const FIGS={
  me:{w:167,hip:.6406,cx:.497,l0:.1796,l1:.8204,h:3.05},
  senior:{w:190,hip:.6445,cx:.4947,l0:.1684,l1:.8526,h:2.85},
  shiun:{w:149,hip:.5605,cx:.4966,l0:.1678,l1:.8591,h:2.95},
- heeyeon:{w:176,hip:.5996,cx:.4943,l0:.1932,l1:.8125,h:2.98},
- sunhye:{w:156,hip:.6094,cx:.4487,l0:.109,l1:.7949,h:2.93}};
+ heeyeon:{w:162,hip:.5781,cx:.4938,l0:.1667,l1:.8395,h:2.98},
+ sunhye:{w:154,hip:.5508,cx:.5,l0:.1883,l1:.8247,h:2.93},
+ boss:{w:201,hip:.6309,cx:.4925,l0:.1891,l1:.8109,h:3.3}};
 const texLoader=new THREE.TextureLoader();
 const ltex=src=>{const t=texLoader.load(src);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;};
 function figure(key){
@@ -413,7 +414,7 @@ function figure(key){
   g.userData={fig:true,card,legs,top:Hh,scale:.85,breath:Math.random()*6};scene.add(g);return g;}
 const hero=figure('me');hero.visible=false;
 const PANTRY={shiun:[15.4,17.4],heeyeon:[18,18.4],sunhye:[20.6,17.4]};
-const SEATS={s1:[-4,ROW_Z+1.7,0],s2:[4,ROW_Z+1.7,0],lead:[-12,ROW_Z+1.7,0],boss:[0,-19.4,0],shiun:[...PANTRY.shiun,0],heeyeon:[...PANTRY.heeyeon,0],sunhye:[...PANTRY.sunhye,0]};
+const SEATS={s1:[-4,ROW_Z+1.7,0],s2:[4,ROW_Z+1.7,0],lead:[-12,ROW_Z+1.7,0],boss:[3.4,-17.4,0],shiun:[...PANTRY.shiun,0],heeyeon:[...PANTRY.heeyeon,0],sunhye:[...PANTRY.sunhye,0]};
 const P={me:hero};const seatY=id=>CAST[id].fig?0:.35*CAST[id].scale/.85;
 Object.entries(SEATS).forEach(([id,[x,z,r]])=>{let g;const c=CAST[id];
   if(c.fig){g=figure(c.fig);g.position.set(x,0,z);}else{g=person(c);g.position.set(x,seatY(id),z);g.rotation.y=r;g.userData.seated=true;g.userData.legs.forEach(l=>l.rotation.x=-1.4);}
