@@ -252,7 +252,7 @@ car(0x2b2e36,-21.8,-10,0);car(0xf2f2f4,-8.6,-10,0,.1);car(0xd8382f,4.6,10,Math.P
 const heroCar=car(0xc5c9cf,40,6,-Math.PI/2,.55,true);
 if(window.THREE.GLTFLoader)new THREE.GLTFLoader().load('models/car.glb',res=>{const m=res.scene;
   m.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;linColors(o);const mt=o.material;
-    if(mt.map){mt.map.encoding=THREE.sRGBEncoding;mt.metalness=0;mt.roughness=.45;}else{mt.vertexColors=false;mt.color=CL(0x6f7378);mt.metalness=.7;mt.roughness=.42;mt.envMap=envMap;mt.envMapIntensity=.5;}mt.needsUpdate=true;});
+    if(mt.map){mt.map.encoding=THREE.sRGBEncoding;mt.metalness=0;mt.roughness=.45;}else{mt.vertexColors=false;mt.color=CL(0x8a8b8d);mt.metalness=.55;mt.roughness=.45;mt.envMap=envMap;mt.envMapIntensity=.45;}mt.needsUpdate=true;});
   const box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3());m.scale.setScalar(4.9/size.z);
   box.setFromObject(m);const c=box.getCenter(new THREE.Vector3());m.position.set(-c.x,-box.min.y,-c.z);
   heroCar.children.forEach(ch=>ch.visible=false);heroCar.add(m);},undefined,()=>{});
