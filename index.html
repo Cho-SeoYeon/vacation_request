@@ -116,19 +116,20 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
 <script>
 /* =====================================================================
-   여기만 고치면 돼요: 등장인물 생김새 · 대사 (실명 대신 역할/별명만)
-   대사 앞의 이름: me=나, s1=안경 쓴 사수 주임님, s2=검은 후드 선배, lead=팀장님,
-   shoong/hee/sun=슝주/희주/선주.  'think'가 붙으면 속마음 말풍선이에요.
+   여기만 고치면 돼요: 등장인물 · 대사 (실명 대신 역할/별명만)
+   대사 앞의 이름: me=나, s1=주임님(처음 결재), s2=오른쪽 사수님, lead=팀장님, boss=지사장님,
+   shiun/heeyeon/sunhye=시운/희연/선혜 주임님.  'think'가 붙으면 속마음 말풍선이에요.
+   생김새: fig가 있는 사람은 img/ 폴더의 그림을 써요.
    ===================================================================== */
 const CAST={
- me:    {name:'나',top:0x8fb3d9,pants:0x3b3f4c,hair:0x2b1f18,hairStyle:'short',scale:.86},
- s1:    {name:'사수 주임님',top:0x6f6b3c,quilt:true,pants:0x3b3f4c,hair:0x1f1a17,hairStyle:'short',glasses:true,scale:.76},
- s2:    {name:'옆자리 선배',top:0x1e1f24,hood:true,pants:0x4a4f60,hair:0x6b4430,hairStyle:'side',scale:.98,wide:1.22},
- lead:  {name:'팀장님',top:0x5b6d86,pants:0x2b2e38,hair:0x2b2b2b,hairStyle:'part',scale:.88},
- boss:  {name:'지사장님',top:0x2b2e38,pants:0x2b2e38,hair:0x9a9a9a,hairStyle:'part',tie:0x7a2a3b,glasses:true,scale:.88},
- shoong:{name:'슝주',top:0xf6efe4,pants:0xc9b8a6,hair:0x16120f,hairStyle:'straight',eyeSmile:true,scale:.8,wide:.88},
- hee:   {name:'희주',top:0xf7f3ea,heart:true,pants:0x5d7fae,hair:0x7a4a2e,hairStyle:'medlong',cap:0x1e1f24,scale:.82},
- sun:   {name:'선주',top:0x1b1c20,pants:0x3b3f4c,hair:0x0f0d0c,hairStyle:'wavy',scale:.82}
+ me:     {name:'나',fig:'me'},
+ s1:     {name:'주임님',fig:'approver'},
+ s2:     {name:'사수님',fig:'senior'},
+ lead:   {name:'팀장님',top:0x5b6d86,pants:0x2b2e38,hair:0x2b2b2b,hairStyle:'part',scale:.88},
+ boss:   {name:'지사장님',top:0x2b2e38,pants:0x2b2e38,hair:0x9a9a9a,hairStyle:'part',tie:0x7a2a3b,glasses:true,scale:.88},
+ shiun:  {name:'시운 주임님',fig:'shiun'},
+ heeyeon:{name:'희연 주임님',fig:'heeyeon'},
+ sunhye: {name:'선혜 주임님',fig:'sunhye'}
 };
 const LEAVE='18일 · 오후 반차';
 const SCRIPT={
@@ -137,13 +138,14 @@ const SCRIPT={
  s1:[['me','주임님, 저 18일 오후에 반차 좀 써도 될까요?'],
      ['s2','대체휴가는 다 못 썼는데… 나 때는~'],['s2','나는 작년에 한 4개 남았었다~'],
      ['me','어쩌라고 씨발..','think'],
-     ['s1','그래, 써. 일정만 공유해 줘요.'],['me','감사합니다!!']],
+     ['s1','네, 쓰세요. 일정만 공유해 주세요.'],['me','감사합니다!!']],
  lead:[['lead','○○ 주임한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
  boss:[['me','지사장님께 결재 상신… 제발!']],
  bossOk:[['me','승인 떴다!!! 🎉']],
  bossNo:[['me','반려…? 왜요… 😱']],
- girlsOk:[['me','나 18일 오후 반차 성공했어!!'],['shoong','와 축하해!! 잘 쉬다 와 ♡'],['hee','부럽다 진짜… 머 할 거야??'],['sun','반차 성공 축하축하 🎉'],['me','일단 낮잠부터 자려고 ㅎㅎ'],['shoong','최고의 계획이다 ㅎㅎ'],['hee','맛있는 거 먹고 사진 보내줘!!'],['sun','부럽다 부러워~ 잘 다녀와!']],
- girlsNo:[['me','나 반차… 반려됐어 😭'],['sun','뭐?? 회사 폭파시켜 버릴까 💢'],['hee','회사 진짜 거지다 거지!!'],['shoong','회사 바보야… 내가 혼내줄게!!'],['sun','지사장실 쳐들어가자 💢'],['hee','우리가 대신 화내줄게!!'],['shoong','회사 폭파 3, 2, 1…']]
+ girlsChat:[['shiun','오늘 커피 뭐 드세요?'],['heeyeon','저는 바닐라라떼요 ㅎㅎ'],['sunhye','저는 아아 수혈이요…']],
+ girlsOk:[['me','주임님들!! 저 18일 오후 반차 승인 났어요!!'],['shiun','와 축하드려요!! 잘 쉬다 오세요 ♡'],['heeyeon','너무 부러워요… 뭐 하실 거예요??'],['sunhye','반차 성공 축하드려요 🎉'],['me','일단 낮잠부터 자려고요 ㅎㅎ'],['shiun','최고의 계획이에요 ㅎㅎ'],['heeyeon','맛있는 거 드시고 사진 보내 주세요!!'],['sunhye','진짜 부러워요~ 잘 다녀오세요!']],
+ girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['sunhye','네?? 회사 폭파시켜 드릴까요? 💢'],['heeyeon','회사 진짜 거지네요 거지!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요 💢'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
 };
 
 (async function(){
@@ -194,13 +196,23 @@ mesh(new THREE.BoxGeometry(56,.03,.14),M(0xf2c94c),0,GY+.05,0,scene,false,false)
 const lightStrip=M(0xffffff,{emissive:0xfff3d8,emissiveIntensity:1});for(let x=-22;x<=22;x+=11)mesh(new THREE.BoxGeometry(5,.1,.3),lightStrip,x,-1.65,0,scene,false,false);
 sign('B1','#2b2e36',-FX+.3,GY+5,-6,2,Math.PI/2);sign('출구 →','#3f9a6e',FX-1,GY+4,-6,3,-Math.PI/2);sign('EV 충전','#2f6fd6',-FX+.3,GY+3.5,-14,2.4,Math.PI/2);
 mesh(RB(.8,1.6,.5,.1),M(0xe8eaee),-FX+.7,GY+.8,-14);
-function car(color,x,z,ry){const g=new THREE.Group();g.position.set(x,GY,z);g.rotation.y=ry;scene.add(g);
-  mesh(RB(2.2,1,4,.4),M(color,{roughness:.35,metalness:.2}),0,.85,0,g,true,false);mesh(RB(1.9,.85,2.2,.35),M(color,{roughness:.35,metalness:.2}),0,1.65,-.2,g,true,false);
-  mesh(RB(1.95,.6,2.05,.25),M(0x2b3446,{roughness:.1,metalness:.4}),0,1.68,-.2,g,false,false);
-  [[-1,1.3],[1,1.3],[-1,-1.3],[1,-1.3]].forEach(([a,b])=>{const w=mesh(new THREE.CylinderGeometry(.42,.42,.3,14),M(0x1e1f24),a,.42,b,g,false,false);w.rotation.z=Math.PI/2;});
-  [-.6,.6].forEach(a=>mesh(new THREE.SphereGeometry(.16,8,6),M(0xfff6d6,{emissive:0xfff0c0,emissiveIntensity:.6}),a,.95,2,g,false,false));return g;}
-car(0xd8d8dc,-21.8,-10,0);car(0x2b2e36,-8.6,-10,0);car(0xd8382f,4.6,10,Math.PI);car(0x7aa982,17.8,-10,0);car(0xf2f2f4,22.2,10,Math.PI);
-const heroCar=car(0x2f6fd6,40,6,-Math.PI/2);
+// low silver sports coupe: one side profile extruded across the width, round lamps, rear light bar
+function carProfile(){const sh=new THREE.Shape();sh.moveTo(2.25,.38);sh.quadraticCurveTo(2.42,.5,2.36,.76);sh.quadraticCurveTo(2.25,.98,1.55,1.02);sh.lineTo(.78,1.1);
+  sh.quadraticCurveTo(.25,1.62,-.45,1.6);sh.quadraticCurveTo(-1.55,1.5,-2.2,.98);sh.quadraticCurveTo(-2.42,.72,-2.3,.42);sh.lineTo(2.25,.38);return sh;}
+function glassProfile(){const sh=new THREE.Shape();sh.moveTo(.7,1.14);sh.quadraticCurveTo(.24,1.56,-.42,1.54);sh.quadraticCurveTo(-1.25,1.46,-1.62,1.2);sh.lineTo(.7,1.14);return sh;}
+const bodyGeo=new THREE.ExtrudeGeometry(carProfile(),{depth:1.7,bevelEnabled:true,bevelThickness:.22,bevelSize:.16,bevelSegments:4,curveSegments:16});bodyGeo.rotateY(-Math.PI/2);bodyGeo.translate(.85,0,0);
+const glassGeo=new THREE.ExtrudeGeometry(glassProfile(),{depth:1.82,bevelEnabled:true,bevelThickness:.06,bevelSize:.05,bevelSegments:2,curveSegments:12});glassGeo.rotateY(-Math.PI/2);glassGeo.translate(.91,.02,0);
+function car(color,x,z,ry,metal=.35){const g=new THREE.Group();g.position.set(x,GY,z);g.rotation.y=ry;scene.add(g);
+  mesh(bodyGeo,M(color,{roughness:.28,metalness:metal}),0,0,0,g,true,false);
+  mesh(glassGeo,M(0x1c2230,{roughness:.08,metalness:.5}),0,0,0,g,false,false);
+  [[-.92,1.38],[.92,1.38],[-.92,-1.38],[.92,-1.38]].forEach(([a,b])=>{const w=mesh(new THREE.CylinderGeometry(.42,.42,.34,20),M(0x18191d,{roughness:.9}),a,.42,b,g,false,false);w.rotation.z=Math.PI/2;
+    const r=mesh(new THREE.CylinderGeometry(.27,.27,.36,12),M(0xd9dce2,{metalness:.8,roughness:.25}),a,.42,b,g,false,false);r.rotation.z=Math.PI/2;});
+  [-.62,.62].forEach(a=>{const l=mesh(new THREE.SphereGeometry(.2,14,10),M(0xfff6d6,{emissive:0xfff0c0,emissiveIntensity:.7,roughness:.1}),a,.86,2.12,g,false,false);l.scale.set(1,1,.6);});
+  mesh(RB(1.7,.1,.1,.04),M(0xd8382f,{emissive:0xff2a2a,emissiveIntensity:.6}),0,.86,-2.42,g,false,false);
+  mesh(RB(1,.06,.3,.03),M(0x2b2e36),0,1.0,-2.15,g,false,false);
+  return g;}
+car(0x2b2e36,-21.8,-10,0);car(0xf2f2f4,-8.6,-10,0,.1);car(0xd8382f,4.6,10,Math.PI);car(0x3f6b8a,17.8,-10,0);car(0xe9e4da,22.2,10,Math.PI,.1);
+const heroCar=car(0xc5c9cf,40,6,-Math.PI/2,.55);
 // glass elevator shaft on the front-left corner, doors face into the building
 const LX=-24,LZ=FZ+2;
 {const post=M(0x5f6672,{metalness:.5,roughness:.35});[[-1.7,-1.7],[1.7,-1.7],[-1.7,1.7],[1.7,1.7]].forEach(([a,b])=>mesh(new THREE.BoxGeometry(.25,7.5-GY+.5,.25),post,LX+a,(GY+7.5)/2,LZ+b));
@@ -256,13 +268,13 @@ function plant(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.
   mesh(new THREE.CylinderGeometry(.55,.42,1,14),M(0xe3ddd2),0,.5,0,g);for(let i=0;i<6;i++){const l=mesh(new THREE.SphereGeometry(.5,10,8),M(i%2?0x4f8f5f:0x6aaa76),Math.sin(i)*.35,1.4+i*.18,Math.cos(i*1.7)*.35,g);l.scale.set(.8,1.4,.8);}}
 // my row: hoodie senior (left) · me · glasses senior (right)
 const ROW_Z=4;
-desk(-4,ROW_Z,0,{mug:0x1e1f24,figure:0xd8382f});desk(0,ROW_Z,0,{mug:0x2f6fd6,plant:true});desk(4,ROW_Z,0,{mug:0x6f6b3c,figure:0x3f9a6e});
+desk(-4,ROW_Z,0,{mug:0x1e1f24,figure:0xd8382f,noChair:true});desk(0,ROW_Z,0,{mug:0x2f6fd6,plant:true,noChair:true});desk(4,ROW_Z,0,{mug:0x6f6b3c,figure:0x3f9a6e,noChair:true});
 sign('내 자리','#2f6fd6',0,3.1,ROW_Z-.75,1.4);
 desk(-12,ROW_Z,0,{mug:0xf2b544,plant:true,chair:0x3b4458});sign('팀장','#3b4458',-12,3.1,ROW_Z-.75,1.4);
 [-12,-4,4].forEach((x,i)=>desk(x,-3,0,{mug:[0xd8382f,0x3f9a6e,0xf2b544][i],plant:i===1}));
 // the three friends' row near the front
 const GIRLS_Z=14;
-desk(-16,GIRLS_Z,0,{mug:0xff9ad5,plant:true});desk(-12,GIRLS_Z,0,{mug:0xd8382f,figure:0xf2b544});desk(-8,GIRLS_Z,0,{mug:0x1e1f24});
+desk(-16,GIRLS_Z,0,{mug:0xff9ad5,plant:true});desk(-8,GIRLS_Z,0,{mug:0x1e1f24});
 // branch manager's office
 {const d=desk(0,-18,Math.PI,{mug:0x7a2a6b,noChair:true});chair(0,-19.4,0,0x5a2a2a);mesh(RB(4.6,.2,2.2,.08),M(0x6b4a34),0,1.52,-18);
   mesh(RB(5,1.1,1.6,.4),M(0x8a3b3b),-5,.55,-21.5);mesh(RB(5,1.4,.5,.2),M(0x8a3b3b),-5,1.2,-22.4);plant(5.5,-22,1.1);}
@@ -349,12 +361,30 @@ function person(o){
   const sd=mesh(new THREE.CircleGeometry(.75*W,20),basic(0x1a2236,{transparent:true,opacity:.22,depthWrite:false}),0,.03,0,g,false,false);sd.rotation.x=-Math.PI/2;
   return g;
 }
-const hero=person(CAST.me);hero.visible=false;
-const paper=mesh(RB(.5,.7,.03,.01),M(0xffffff),0,-.95,.18,hero.userData.arms[1],false);paper.rotation.x=-.3;
-const SEATS={s1:[4,ROW_Z+1.4,Math.PI],s2:[-4,ROW_Z+1.4,Math.PI],lead:[-12,ROW_Z+1.4,Math.PI],boss:[0,-19.4,0],shoong:[-16,GIRLS_Z+1.4,Math.PI],hee:[-12,GIRLS_Z+1.4,Math.PI],sun:[-8,GIRLS_Z+1.4,Math.PI]};
-const P={me:hero};const seatY=id=>.35*CAST[id].scale/.85;
-Object.entries(SEATS).forEach(([id,[x,z,r]])=>{const g=person(CAST[id]);g.position.set(x,seatY(id),z);g.rotation.y=r;g.userData.base=r;g.userData.seated=true;g.userData.legs.forEach(l=>l.rotation.x=-1.4);P[id]=g;});
-const MY_SEAT=new THREE.Vector3(0,seatY('me'),ROW_Z+1.4);
+/* figures from the user's illustration: cut out, then puffed into a soft relief with a depth map */
+const FIGS={senior:[171,569],approver:[195,677],me:[154,599],shiun:[120,574],heeyeon:[176,595],sunhye:[156,586]};
+const UNIT=3.05/599;
+function figure(key){const [w,px]=FIGS[key];const Hh=px*UNIT,Ww=Hh*w/512,DEPTH=Ww*.2;
+  const tex=new THREE.TextureLoader().load('img/'+key+'.webp');tex.encoding=THREE.sRGBEncoding;tex.anisotropy=8;
+  const geo=new THREE.PlaneGeometry(Ww,Hh,Math.max(8,Math.round(w/4)),128);geo.translate(0,Hh/2,0);const back=geo.clone();
+  const mat=new THREE.MeshStandardMaterial({map:tex,alphaTest:.5,side:THREE.DoubleSide,roughness:.75,emissive:new THREE.Color(0xffffff),emissiveMap:tex,emissiveIntensity:.15});
+  const bmat=new THREE.MeshStandardMaterial({map:tex,alphaTest:.5,side:THREE.DoubleSide,roughness:.9,color:new THREE.Color(0xb9a99c)});
+  const dmat=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:tex,alphaTest:.5});
+  const g=new THREE.Group(),card=new THREE.Group();g.add(card);
+  [[geo,mat],[back,bmat]].forEach(([gg,mm])=>{const m=new THREE.Mesh(gg,mm);m.castShadow=true;m.customDepthMaterial=dmat;card.add(m);});
+  const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height).data;
+    [[geo,1],[back,-.75]].forEach(([gg,k])=>{const p=gg.attributes.position,uv=gg.attributes.uv;for(let i=0;i<p.count;i++){const px2=Math.min(c.width-1,Math.round(uv.getX(i)*(c.width-1))),py=Math.min(c.height-1,Math.round((1-uv.getY(i))*(c.height-1)));p.setZ(i,k*DEPTH*d[(py*c.width+px2)*4]/255);}p.needsUpdate=true;gg.computeVertexNormals();});};
+  img.src='img/'+key+'-depth.png';
+  const sd=mesh(new THREE.CircleGeometry(Ww*.55,20),basic(0x1a2236,{transparent:true,opacity:.25,depthWrite:false}),0,.03,0,g,false,false);sd.rotation.x=-Math.PI/2;sd.scale.y=.6;
+  g.userData={fig:true,card,top:Hh,scale:.85};scene.add(g);return g;}
+const hero=figure('me');hero.visible=false;
+const PANTRY={shiun:[15.4,17.4],heeyeon:[18,18.4],sunhye:[20.6,17.4]};
+const SEATS={s1:[-4,ROW_Z+1.7,Math.PI],s2:[4,ROW_Z+1.7,Math.PI],lead:[-12,ROW_Z+1.4,Math.PI],boss:[0,-19.4,0],shiun:[...PANTRY.shiun,0],heeyeon:[...PANTRY.heeyeon,0],sunhye:[...PANTRY.sunhye,0]};
+const P={me:hero};const seatY=id=>CAST[id].fig?0:.35*CAST[id].scale/.85;
+Object.entries(SEATS).forEach(([id,[x,z,r]])=>{let g;const c=CAST[id];
+  if(c.fig){g=figure(c.fig);g.position.set(x,0,z);}else{g=person(c);g.position.set(x,seatY(id),z);g.rotation.y=r;g.userData.seated=true;g.userData.legs.forEach(l=>l.rotation.x=-1.4);}
+  g.userData.base=r;g.userData.lookYaw=r;P[id]=g;});
+const MY_SEAT=new THREE.Vector3(0,0,ROW_Z+1.7);
 
 /* ================= overlay ================= */
 const tags={};Object.keys(SEATS).forEach(id=>{const d=document.createElement('div');d.className='tag';d.textContent=CAST[id].name;overlay.appendChild(d);tags[id]=d;});
@@ -363,7 +393,7 @@ const stampEl=document.createElement('div');stampEl.className='stampfx';overlay.
 const popEl=document.createElement('div');popEl.className='tag pop';overlay.appendChild(popEl);
 const docTag=document.createElement('div');docTag.className='tag';overlay.appendChild(docTag);
 const boomEl=document.createElement('div');boomEl.className='boom';boomEl.textContent='쾅!!';overlay.appendChild(boomEl);
-const BOXES=['사수 주임님','팀장님','지사장님'];
+const BOXES=['주임님','팀장님','지사장님'];
 BOXES.forEach((r,i)=>{const b=document.createElement('button');b.type='button';b.className='box';b.id='box'+i;b.innerHTML='<span class="r"></span><span class="s"><i></i></span>';b.querySelector('.r').textContent=r;b.onclick=()=>go(i+2,true);$('#stamps').appendChild(b);});
 
 let W=1,H=1;
@@ -381,14 +411,14 @@ const STEPS=[
   acts:()=>[{t:'drive'},{t:'show'},walk([[-14,GY,8.6],[-18,GY,14],[LX,GY,FZ-.6],[LX,GY,LZ]]),{t:'lift',up:true}]},
  {key:'lift',title:'올라가는 엘리베이터 안',who:'속마음',cam:'lift',
   acts:()=>[{t:'liftRide',dur:9.2},...say(SCRIPT.lift),{t:'liftWait'},walk([[LX,0,LZ],[LX,0,FZ-1],[-21,0,9],[-6,0,8.4],[0,0,7]])]},
- {key:'s1',title:'자리에서 고민하다가…',who:'사수 주임님 · 옆자리 선배',cam:'row',
+ {key:'s1',title:'자리에서 고민하다가…',who:'주임님 · 사수님',cam:'row',
   acts:()=>[{t:'sit'},...say(SCRIPT.ponder),{t:'face',id:'s1'},...say(SCRIPT.s1),{t:'stamp',box:0,text:'승인',at:'s1'}]},
  {key:'lead',title:'팀장님께',who:'팀장님',cam:'lead',
   acts:()=>[{t:'stand'},walk([[0,0,7],[-6,0,7.4],[-10,0,7.2]]),{t:'face',id:'lead'},...say(SCRIPT.lead),{t:'stamp',box:1,text:'승인',at:'lead'}]},
  {key:'boss',title:'지사장님 결재',who:'지사장님 · 지사장실',cam:'boss',
   acts:()=>[walk([[-10,0,7.2],[-6,0,7.4],[0,0,7]]),{t:'sit'},{t:'face',id:'desk'},...say(SCRIPT.boss),{t:'send',to:V3(0,2.4,-18),label:'반차 결재',pop:'결재 대기 중…'},{t:'choice'},{t:'bossResult'}]},
- {key:'girls',title:'슝주 · 희주 · 선주에게 소식',who:'슝주 · 희주 · 선주',cam:'girls',
-  acts:()=>[{t:'stand'},walk([[0,0,7],[-3,0,9],[-3,0,18.4],[-12,0,18.4]]),{t:'face',id:'girls'},...(st.result==='no'?[{t:'mood',v:'angry'},...say(SCRIPT.girlsNo,true),{t:'boom'}]:[{t:'mood',v:'love'},...say(SCRIPT.girlsOk,true),{t:'confetti'}]),{t:'end'}]}
+ {key:'girls',title:'탕비실의 시운 · 희연 · 선혜 주임님',who:'시운 · 희연 · 선혜 주임님',cam:'girls',
+  acts:()=>[{t:'stand'},...say(SCRIPT.girlsChat,true),walk([[0,0,7],[8,0,8.4],[13,0,13],[22.6,0,13.2],[23.4,0,16.6]]),{t:'face',id:'girls'},...(st.result==='no'?[{t:'mood',v:'angry'},...say(SCRIPT.girlsNo,true),{t:'boom'}]:[{t:'mood',v:'love'},...say(SCRIPT.girlsOk,true),{t:'confetti'}]),{t:'end'}]}
 ];
 // where the hero is at the start of each step (so any step can be jumped to)
 const START={park:{pos:V3(40,GY,6),hidden:true,car:true},lift:{pos:V3(LX,GY,LZ),lift:GY},s1:{pos:V3(0,0,7)},lead:{pos:MY_SEAT.clone(),seated:true,yaw:Math.PI},boss:{pos:V3(-10,0,7.2)},girls:{pos:MY_SEAT.clone(),seated:true,yaw:Math.PI}};
@@ -416,6 +446,7 @@ function next(){st.a=st.q.shift()||null;st.at=0;const a=st.a;if(!a){render();ret
   if(a.t==='lift'){st.doorOpen=1;a.dur=.6;}
   if(a.t==='liftRide'){st.liftT={t0:simT,dur:a.dur};a.dur=0;}
   if(a.t==='sit'){st.seated=true;hero.position.copy(MY_SEAT);a.dur=.4;}
+  if(a.t==='stand'&&0){}
   if(a.t==='stand'){st.seated=false;hero.position.set(0,0,7);a.dur=.3;}
   if(a.t==='face'){st.face=a.id;a.dur=.5;}
   if(a.t==='stamp'){st.stamps[a.box]=a.text;stamp(a.text,a.at);a.dur=1.5;}
@@ -455,7 +486,7 @@ const OV_T=V3(0,-3,0),OV_O=V3(60,80,120);
 let fly=null,camKey=null;camera.position.copy(OV_T).add(OV_O);controls.target.copy(OV_T);
 function camFly(t,o){fly={t:0,fT:controls.target.clone(),fO:camera.position.clone().sub(controls.target),tT:t,tO:o};}
 const focus=V3(20,GY,6);
-const CAMS={garage:{o:V3(.42,.16,.9),d:40},lift:{o:V3(.35,.12,.93),d:22},row:{t:V3(0,1.6,5.4),o:V3(.3,.62,.85),d:22},lead:{o:V3(.4,.6,.85),d:22},boss:{t:V3(0,1.5,-6),o:V3(.45,.75,.75),d:48},girls:{t:V3(-11,1.5,16),o:V3(.35,.6,.9),d:24}};
+const CAMS={garage:{o:V3(.42,.16,.9),d:40},lift:{o:V3(.35,.12,.93),d:22},row:{t:V3(0,1.6,5.6),o:V3(.3,.5,.85),d:17},lead:{o:V3(.4,.55,.85),d:18},boss:{t:V3(0,1.5,-6),o:V3(.45,.75,.75),d:48},girls:{t:V3(17.6,1.5,17.4),o:V3(.3,.5,.9),d:24}};
 
 /* effects */
 const cf=$('#confetti'),cx=cf.getContext('2d');let confettiOn=false,bits=[];
@@ -471,13 +502,18 @@ let floatT=0;
 
 /* animation */
 const clock=new THREE.Clock();let phase=0,simT=0;const tmp=V3(0,0,0);let heroYaw=0;
-function pose(g,walking,talking){const u=g.userData;const sw=walking?Math.sin(phase)*.55:0;
+function figAnim(g,walking,talking){const u=g.userData;const dx=camera.position.x-g.position.x,dz=camera.position.z-g.position.z,dy=camera.position.y-g.position.y;
+  const cy=Math.atan2(dx,dz);let df=(u.lookYaw!=null?u.lookYaw:cy)-cy;while(df>Math.PI)df-=Math.PI*2;while(df<-Math.PI)df+=Math.PI*2;
+  g.rotation.y=cy+Math.max(-.55,Math.min(.55,df*.4));u.card.rotation.x=-Math.min(.4,Math.atan2(dy,Math.hypot(dx,dz))*.3);
+  u.card.position.y=walking?Math.abs(Math.sin(phase))*.12:talking?Math.abs(Math.sin(phase*1.2))*.07:0;
+  u.card.rotation.z=walking?Math.sin(phase)*.045:talking?Math.sin(phase*.9)*.035:Math.sin(simT*.8+g.position.x)*.012;}
+function pose(g,walking,talking){const u=g.userData;if(u.fig){figAnim(g,walking,talking);return;}const sw=walking?Math.sin(phase)*.55:0;
   if(!u.seated){u.legs[0].rotation.x=sw;u.legs[1].rotation.x=-sw;}else{u.legs[0].rotation.x=u.legs[1].rotation.x=-1.4;}
   u.arms[0].rotation.x=walking?-sw*.8:(talking?Math.sin(phase*1.7)*.3-.3:0);
   u.head.rotation.z=talking?Math.sin(phase*2.2)*.07:0;u.head.rotation.x=talking?Math.sin(phase*3)*.06:0;}
 function place(el,v,dy=0){tmp.copy(v).project(camera);if(tmp.z>1||Math.abs(tmp.x)>1.15||Math.abs(tmp.y)>1.15){el.style.display='none';return false;}
   el.style.display='';el.style.transform='translate('+((tmp.x+1)/2*W).toFixed(1)+'px,'+((1-tmp.y)/2*H+dy).toFixed(1)+'px) translate(-50%,-100%)';return true;}
-function headPos(id){const g=P[id];return g.position.clone().setY(g.position.y+3.25*g.userData.scale/.85*(g.userData.seated?.9:1));}
+function headPos(id){const g=P[id];if(g.userData.fig)return g.position.clone().setY(g.position.y+g.userData.top+.15);return g.position.clone().setY(g.position.y+3.25*g.userData.scale/.85*(g.userData.seated?.9:1));}
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 function yawTo(cur,want,k){let d=want-cur;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return cur+d*k;}
 function tick(){
@@ -504,18 +540,17 @@ function tick(){
   if(st.i===1&&(a.t==='liftRide'||a.t==='liftWait'||(a.t==='say'&&!walking))){hero.position.set(LX,st.liftY,LZ);heroYaw=yawTo(heroYaw,Math.PI*.15,dt*3);}
   hero.userData.seated=st.seated;
   if(st.seated){hero.position.y=seatY('me');}
-  if(!walking&&st.face){let want=heroYaw;if(st.face==='desk')want=Math.PI;else if(st.face==='girls')want=Math.PI;else if(P[st.face])want=Math.atan2(P[st.face].position.x-hero.position.x,P[st.face].position.z-hero.position.z);heroYaw=yawTo(heroYaw,want,Math.min(1,dt*6));}
-  hero.rotation.y=heroYaw;if(walking)hero.position.y+=Math.abs(Math.sin(phase))*.1;
+  if(!walking&&st.face){let want=heroYaw;if(st.face==='desk')want=Math.PI;else if(st.face==='girls')want=Math.atan2(18-hero.position.x,17.8-hero.position.z);else if(P[st.face])want=Math.atan2(P[st.face].position.x-hero.position.x,P[st.face].position.z-hero.position.z);heroYaw=yawTo(heroYaw,want,Math.min(1,dt*6));}
+  hero.userData.lookYaw=heroYaw;
   const talkWho=a.t==='say'?a.who:null;
-  pose(hero,walking,talkWho==='me'&&!a.think);hero.userData.arms[1].rotation.x=walking?Math.sin(phase)*.4:-.9;
-  if(a.t==='say'&&a.think&&talkWho==='me')hero.userData.head.rotation.z=Math.sin(T*1.3)*.12;
-  Object.keys(SEATS).forEach(id=>{const g=P[id];const engaged=(st.face===id||(st.face==='girls'&&['shoong','hee','sun'].includes(id))||(st.i===2&&st.face==='s1'&&id==='s2'))&&a.t!=='walk';
+  pose(hero,walking,talkWho==='me'&&!a.think);
+  Object.keys(SEATS).forEach(id=>{const g=P[id];const engaged=(st.face===id||(st.face==='girls'&&['shiun','heeyeon','sunhye'].includes(id))||(st.i===2&&st.face==='s1'&&id==='s2'))&&a.t!=='walk';
     let w=g.userData.base;if(engaged)w=Math.atan2(hero.position.x-g.position.x,hero.position.z-g.position.z);
     if(id==='s2'&&talkWho==='s2')w=Math.atan2(P.s1.position.x-g.position.x,P.s1.position.z-g.position.z)*.3+w*.7;
-    g.rotation.y=yawTo(g.rotation.y,w,Math.min(1,dt*4));pose(g,false,talkWho===id);
+    const u=g.userData;u.lookYaw=yawTo(u.lookYaw,w,Math.min(1,dt*4));if(!u.fig)g.rotation.y=u.lookYaw;pose(g,false,talkWho===id);
     g.position.y=seatY(id)+(st.mood==='angry'&&engaged?Math.abs(Math.sin(T*9+id.length))*.35:st.mood==='love'&&engaged&&talkWho===id?Math.abs(Math.sin(T*6))*.15:0);
-    g.userData.head.rotation.y=engaged?0:Math.sin(T*.6+id.length)*.2;});
-  if(st.mood&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shoong','hee','sun'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
+    if(!u.fig)u.head.rotation.y=engaged?0:Math.sin(T*.6+id.length)*.2;});
+  if(st.mood&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shiun','heeyeon','sunhye'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
   floaties.forEach(f=>{if(!f.sp.visible)return;f.t+=dt;f.sp.position.y+=dt*1.6;f.sp.scale.setScalar(.8*(1-f.t/2)+.2);if(f.t>1.8)f.sp.visible=false;});
   for(let i=puffs.length-1;i>=0;i--){const m=puffs[i],u=m.userData;u.t+=dt;m.position.addScaledVector(u.v,dt);u.v.multiplyScalar(.96);m.scale.setScalar(.6+u.t*2.2);m.material.opacity=Math.max(0,.9-u.t*.45);if(u.t>2.2){scene.remove(m);puffs.splice(i,1);}}
   ledA.emissiveIntensity=.4+.6*(Math.sin(T*7)>0?1:0);ledB.emissiveIntensity=.4+.6*(Math.sin(T*5+1)>0?1:0);
