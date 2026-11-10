@@ -250,6 +250,12 @@ function car(color,x,z,ry,metal=.35,hero){const g=new THREE.Group();g.position.s
   return g;}
 car(0x2b2e36,-21.8,-10,0);car(0xf2f2f4,-8.6,-10,0,.1);car(0xd8382f,4.6,10,Math.PI);car(0x3f6b8a,17.8,-10,0);car(0xe9e4da,22.2,10,Math.PI,.1);
 const heroCar=car(0xc5c9cf,40,6,-Math.PI/2,.55,true);
+if(window.THREE.GLTFLoader)new THREE.GLTFLoader().load('models/car.glb',res=>{const m=res.scene;
+  m.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;linColors(o);const mt=o.material;
+    if(mt.map){mt.map.encoding=THREE.sRGBEncoding;mt.metalness=0;mt.roughness=.45;}else{mt.vertexColors=false;mt.color=CL(0x6f7378);mt.metalness=.7;mt.roughness=.42;mt.envMap=envMap;mt.envMapIntensity=.5;}mt.needsUpdate=true;});
+  const box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3());m.scale.setScalar(4.9/size.z);
+  box.setFromObject(m);const c=box.getCenter(new THREE.Vector3());m.position.set(-c.x,-box.min.y,-c.z);
+  heroCar.children.forEach(ch=>ch.visible=false);heroCar.add(m);},undefined,()=>{});
 // glass elevator shaft on the front-left corner, doors face into the building
 const LX=-24,LZ=FZ+2;
 {const post=M(0x5f6672,{metalness:.5,roughness:.35});[[-1.7,-1.7],[1.7,-1.7],[-1.7,1.7],[1.7,1.7]].forEach(([a,b])=>mesh(new THREE.BoxGeometry(.25,7.5-GY+.5,.25),post,LX+a,(GY+7.5)/2,LZ+b));
@@ -436,14 +442,22 @@ function figure(key){
    Clips whose name contains "walk"/"run" play while walking, "idle" otherwise. MODEL_TURN fixes a model that faces the wrong way. */
 const MODEL_TURN={};
 const gltf=window.THREE.GLTFLoader?new THREE.GLTFLoader():null;
+function linColors(o){const ca=o.geometry.attributes.color;if(!ca)return;const n=ca.count,arr=new Float32Array(n*3),dv=ca.array instanceof Uint8Array?255:ca.array instanceof Uint16Array?65535:1,lin=c=>(c/=dv)<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);
+  for(let i=0;i<n;i++){arr[i*3]=lin(ca.getX(i));arr[i*3+1]=lin(ca.getY(i));arr[i*3+2]=lin(ca.getZ(i));}o.geometry.setAttribute('color',new THREE.BufferAttribute(arr,3));}
+/* walking: the legs stay attached and bend from the hip in the vertex shader (no gap at the hip) */
+function addWalk(mat,U){mat.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);
+  sh.vertexShader='uniform float uSwing,uHip,uCx,uW;\n'+sh.vertexShader.replace('#include <begin_vertex>',
+  '#include <begin_vertex>\nfloat dh=max(uHip-transformed.y,0.);float sd=clamp((uCx-transformed.x)/uW,-1.,1.);float ang=uSwing*sd;transformed.z+=sin(ang)*dh;transformed.y+=(1.-cos(ang))*dh;');};mat.needsUpdate=true;}
 function loadModel(key,g,Hh){if(!gltf)return;
   gltf.load('models/'+key+'.glb',res=>{const m=res.scene;m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;const ca=o.geometry.attributes.color;
-      if(ca){const n=ca.count,arr=new Float32Array(n*3),dv=ca.array instanceof Uint8Array?255:ca.array instanceof Uint16Array?65535:1,lin=c=>(c/=dv)<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);for(let i=0;i<n;i++){arr[i*3]=lin(ca.getX(i));arr[i*3+1]=lin(ca.getY(i));arr[i*3+2]=lin(ca.getZ(i));}o.geometry.setAttribute('color',new THREE.BufferAttribute(arr,3));}
+      linColors(o);
       const mt=o.material;if(mt){if(mt.map)mt.map.encoding=THREE.sRGBEncoding;mt.metalness=0;mt.roughness=Math.max(.6,mt.roughness||0);mt.metalnessMap=null;mt.needsUpdate=true;}}});
-    const box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3());const k=Hh/(size.y||1);m.scale.setScalar(k);
+    const box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3());const k=Hh/(size.y||1);
+    const f=FIGS[key],U={uSwing:{value:0},uHip:{value:box.max.y-f.hip*size.y},uCx:{value:box.min.x+f.cx*size.x},uW:{value:size.x*.06}};
+    if(key!=='lead')m.traverse(o=>{if(o.isMesh)addWalk(o.material,U);});m.scale.setScalar(k);
     box.setFromObject(m);const c=box.getCenter(new THREE.Vector3());m.position.set(-c.x,-box.min.y,-c.z);
     const holder=new THREE.Group();holder.rotation.y=MODEL_TURN[key]||0;holder.add(m);g.add(holder);g.userData.card.visible=false;
-    const u=g.userData;u.model=holder;u.mlegs=['legL','legR'].map(n=>m.getObjectByName(n)).filter(Boolean);
+    const u=g.userData;u.model=holder;u.walkU=U;u.mlegs=[];
     if(res.animations&&res.animations.length){u.mixer=new THREE.AnimationMixer(m);const find=re=>res.animations.find(a=>re.test(a.name));
       u.walkAct=find(/walk|run/i)&&u.mixer.clipAction(find(/walk|run/i));u.idleAct=find(/idle|stand|breath/i)&&u.mixer.clipAction(find(/idle|stand|breath/i));
       if(!u.walkAct&&!u.idleAct)u.idleAct=u.mixer.clipAction(res.animations[0]);(u.idleAct||u.walkAct).play();u.cur=u.idleAct||u.walkAct;}
@@ -749,8 +763,8 @@ let floatT=0;
 const clock=new THREE.Clock();let phase=0,simT=0,frameDt=0;const tmp=V3(0,0,0);let heroYaw=0;
 function figAnim(g,walking,talking){const u=g.userData;g.rotation.y=u.lookYaw!=null?u.lookYaw:0;
   if(u.model){if(u.mixer){const want=walking&&u.walkAct?u.walkAct:(u.idleAct||u.walkAct);if(want!==u.cur){want.reset().play();if(u.cur)u.cur.crossFadeTo(want,.25,false);u.cur=want;}u.mixer.update(frameDt);}
-    if(u.mlegs.length===2&&!u.mixer){const sw=walking?Math.sin(phase)*.45:0;u.mlegs[0].rotation.x=sw;u.mlegs[1].rotation.x=-sw;}
-    u.model.position.y=u.mixer?0:(walking?Math.abs(Math.cos(phase))*.07:talking?Math.abs(Math.sin(phase*1.2))*.04:0);u.model.rotation.x=talking?Math.sin(phase*1.4)*.02:0;return;}
+    if(u.walkU){const want=walking?Math.sin(phase*.85)*.38:0;u.walkU.uSwing.value+=(want-u.walkU.uSwing.value)*Math.min(1,frameDt*14);}
+    u.model.position.y=u.mixer?0:(walking?Math.abs(Math.cos(phase*.85))*.035:talking?Math.abs(Math.sin(phase*1.2))*.04:0);u.model.rotation.x=talking?Math.sin(phase*1.4)*.02:0;return;}
   const sw=walking?Math.sin(phase)*.5:0;u.legs[0].rotation.x=sw;u.legs[1].rotation.x=-sw;
   u.card.position.y=walking?Math.abs(Math.cos(phase))*.08:talking?Math.abs(Math.sin(phase*1.2))*.05:0;
   u.card.rotation.x=talking?Math.sin(phase*1.4)*.025:0;u.card.rotation.z=0;
