@@ -34,6 +34,7 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 .bub b{display:block;font-family:var(--f-display);font-weight:400;font-size:12px;color:#c0392b;margin-bottom:1px}
 .bub::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
 .bub.me{background:#eaf2ff}.bub.me b{color:var(--accent)}.bub.me::after{border-top-color:#eaf2ff}
+.mutter{position:absolute;left:0;top:0;font-size:12px;font-style:italic;color:#5a5048;background:rgba(255,253,247,.85);padding:4px 10px;border-radius:12px;white-space:nowrap;opacity:0;transition:opacity .4s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .bub.think{background:#f6f3ff;border-radius:22px;color:#4a4458}
 .bub.think b{color:#7c5cc4}
 .bub.think::after{border:0;width:12px;height:12px;border-radius:50%;background:#f6f3ff;bottom:-10px;margin-left:-14px;box-shadow:-9px 9px 0 -3px #f6f3ff}
@@ -570,6 +571,11 @@ Object.entries(SEATS).forEach(([id,[x,z,r]])=>{let g;const c=CAST[id];
 const MY_SEAT=new THREE.Vector3(0,0,ROW_Z+1.7);
 
 /* ================= overlay ================= */
+const NO_TAG=['shiun','heeyeon','sunhye'];
+// the senior never stops muttering in the background
+const MUTTER=['궁시렁 궁시렁…','나 때는 말이야…','대체휴가도 다 못 쓰고…','반차는 무슨 반차…','작년에 4개 남았었는데…','요즘은 참 좋겠다…','궁시렁…'];
+const mutterEl=document.createElement('div');mutterEl.className='mutter';
+let mutterI=0,mutterT=0;
 const tags={};Object.keys(SEATS).forEach(id=>{const d=document.createElement('div');d.className='tag';d.textContent=CAST[id].name;overlay.appendChild(d);tags[id]=d;});
 const bubbles={};function bubbleFor(id){if(!bubbles[id]){const d=document.createElement('div');d.className='bub';d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=CAST[id].name;overlay.appendChild(d);bubbles[id]={el:d,text:'',t0:-99,hold:0};}return bubbles[id];}
 const stampEl=document.createElement('div');stampEl.className='stampfx';overlay.appendChild(stampEl);
@@ -803,7 +809,10 @@ function tick(){
   clouds.forEach(([g,a2,r],i)=>{const na=a2+T*.01*(1+i%3*.3);g.position.x=Math.cos(na)*r;g.position.z=Math.sin(na)*r;});
   renderer.render(scene,camera);
   // overlay
-  Object.keys(SEATS).forEach(id=>{const b=bubbles[id];const speaking=b&&T-b.t0<b.hold;const near=s.cam!=='garage'&&s.cam!=='lift';if(near&&!speaking)place(tags[id],headPos(id).add(tmp.set(0,.2,0)));else tags[id].style.display='none';});
+  {const b=bubbles.s2,sp=b&&T-b.t0<b.hold;mutterT+=dt;if(mutterT>3.2){mutterT=0;mutterI=(mutterI+1)%MUTTER.length;mutterEl.textContent=MUTTER[mutterI];}
+    if(!mutterEl.parentNode)overlay.appendChild(mutterEl);const near=s.cam!=='garage'&&s.cam!=='lift';
+    if(near&&!sp&&mutterEl.textContent&&mutterT<2.6){mutterEl.style.opacity=.95;place(mutterEl,headPos('s2').add(tmp.set(0,.45,0)),-4);}else mutterEl.style.opacity=0;}
+  Object.keys(SEATS).forEach(id=>{const b=bubbles[id];const speaking=b&&T-b.t0<b.hold;const near=s.cam!=='garage'&&s.cam!=='lift'&&!NO_TAG.includes(id);if(near&&!speaking)place(tags[id],headPos(id).add(tmp.set(0,.2,0)));else tags[id].style.display='none';});
   Object.entries(bubbles).forEach(([id,b])=>{const age=T-b.t0;if(age>b.hold){b.el.style.opacity=0;return;}
     const n=Math.min(b.text.length,Math.floor(age*28));b.el.querySelector('span').textContent=b.text.slice(0,n)||'…';b.el.style.opacity=1;
     place(b.el,headPos(id).add(tmp.set(0,.35,0)),-6-({heeyeon:48}[id]||0));b.el.style.zIndex=String(Math.round(1000-age*10));});
