@@ -47,6 +47,12 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 @keyframes boom{15%{opacity:1;transform:scale(1.25)}60%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.1)}}
 #confetti{position:absolute;inset:0;pointer-events:none}
 #flash{position:absolute;inset:0;background:#fff7e0;opacity:0;pointer-events:none}
+#yay{position:absolute;left:0;right:0;top:22%;text-align:center;pointer-events:none;opacity:0;transform:scale(.4)}
+#yay.on{animation:yay .9s cubic-bezier(.2,1.6,.4,1) forwards}
+#yay b{display:block;font-family:var(--f-display);font-weight:400;font-size:44px;line-height:1.1;background:linear-gradient(180deg,#fff6c8,#f2b544 55%,#e07a1f);-webkit-background-clip:text;background-clip:text;color:transparent;
+  -webkit-text-stroke:1.5px rgba(120,60,10,.45);filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+#yay span{display:inline-block;margin-top:6px;font-family:var(--f-display);font-size:17px;color:#fff;background:rgba(216,56,47,.92);padding:4px 14px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+@keyframes yay{to{opacity:1;transform:scale(1)}}
 #stage canvas,#stage #overlay{transition:filter 1.6s ease}
 #stage.sepia canvas,#stage.sepia #overlay{filter:sepia(.92) saturate(.7) brightness(.8) contrast(1.1)}
 #ending{position:absolute;left:0;right:0;bottom:0;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 34px);display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none;
@@ -102,7 +108,7 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 </style>
 </head>
 <body>
-<div id="stage"><div id="overlay"></div><canvas id="confetti"></canvas><div id="flash"></div>
+<div id="stage"><div id="overlay"></div><canvas id="confetti"></canvas><div id="flash"></div><div id="yay"><b>반차 승인!</b><span>18일 오후는 내 거 🎉</span></div>
   <div id="ending" aria-live="polite"><p>지금까지 ABS를 사랑해주셔서 감사합니다.</p><div class="sponsor"><span class="mk">b</span><span><b>caffè bene</b><small>gelato &amp; waffle</small></span></div></div></div>
 <div class="top"><div class="brand"><h1>반차 <b>결재</b> 받기 시뮬레이션</h1><p id="sub">결재 0 / 3</p></div></div>
 
@@ -130,14 +136,14 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 <script>
 /* =====================================================================
    여기만 고치면 돼요: 등장인물 · 대사 (실명 대신 역할/별명만)
-   대사 앞의 이름: me=나, s1=주임님(처음 결재), s2=오른쪽 사수님, lead=팀장님, boss=지사장님,
+   대사 앞의 이름: me=나, s1=PL(처음 결재), s2=오른쪽 사수, lead=팀장님, boss=지사장님,
    shiun/heeyeon/sunhye=시운/희연/선혜 주임님.  'think'가 붙으면 속마음 말풍선이에요.
    생김새: fig가 있는 사람은 img/ 폴더의 그림을 써요.
    ===================================================================== */
 const CAST={
  me:     {name:'나',fig:'me'},
- s1:     {name:'주임님',fig:'approver'},
- s2:     {name:'사수님',fig:'senior'},
+ s1:     {name:'PL',fig:'approver'},
+ s2:     {name:'사수',fig:'senior'},
  lead:   {name:'팀장님',fig:'lead'},
  boss:   {name:'지사장님',fig:'boss'},
  shiun:  {name:'시운 주임님',fig:'shiun'},
@@ -148,15 +154,15 @@ const LEAVE='18일 · 오후 반차';
 const SCRIPT={
  lift:[['me','나 진짜 오후 반차 쓴다.','think'],['me','말리지 마라','think']],
  ponder:[['me','말할까… 말까…','think'],['me','그래, 지금이다.','think']],
- s1:[['me','주임님, 저 18일 오후에 반차 좀 써도 될까요?'],
+ s1:[['me','PL님, 저 18일 오후에 반차 좀 써도 될까요?'],
      ['s2','와 나 때는 대체휴가 다 못 썼는데…'],['s2','나는 작년에 4개인가 남았던 거 같은데.'],
-     ['me','어쩌라고 씨발..','think'],
+     ['me','그러세요..','think'],
      ['s1','그래요 써요~ 캘린더에만 올려줘요~'],['me','감사합니다!!']],
- lead:[['lead','○○ 주임한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
+ lead:[['lead','PL한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
  boss:[['me','지사장님께 결재 상신… 제발!']],
  bossOk:[['me','승인 떴다!!! 🎉']],
  bossNo:[['boss','당일 반차 올리지 마라, 다들.'],['me','에반데 ...']],
- girlsChat:[['shiun','오늘 커피 드시나요?'],['heeyeon','저는 바닐라라떼요'],['sunhye','저는 아이스아메리카노요 ㅎㅎ']],
+ girlsChat:[['shiun','오늘 커피 드시나요?'],['heeyeon','저는 바닐라라떼요 ~~~'],['sunhye','저는 아이스아메리카노요 ㅎㅎ']],
  girlsOk:[['me','주임님들!! 저 18일 오후 반차 승인 났어요!!'],['shiun','와 축하드려요!! 잘 쉬다 오세요 ♡'],['heeyeon','너무 부러워요… 뭐 하실 거예요??'],['sunhye','반차 성공 축하드려요 🎉'],['heeyeon','맛있는 거 드시고 사진 보내 주세요!!'],['sunhye','진짜 부러워요~ 잘 다녀오세요!']],
  girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['heeyeon','네?? 회사 폭파시켜 드릴까요?'],['sunhye','회사 거지같네요!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
 };
@@ -570,7 +576,7 @@ const stampEl=document.createElement('div');stampEl.className='stampfx';overlay.
 const popEl=document.createElement('div');popEl.className='tag pop';overlay.appendChild(popEl);
 const docTag=document.createElement('div');docTag.className='tag';overlay.appendChild(docTag);
 const boomEl=document.createElement('div');boomEl.className='boom';boomEl.textContent='쾅!!';overlay.appendChild(boomEl);
-const BOXES=['주임님','팀장님','지사장님'];
+const BOXES=['PL','팀장님','지사장님'];
 BOXES.forEach((r,i)=>{const b=document.createElement('button');b.type='button';b.className='box';b.id='box'+i;b.innerHTML='<span class="r"></span><span class="s"><i></i></span>';b.querySelector('.r').textContent=r;b.onclick=()=>go(i+2,true);$('#stamps').appendChild(b);});
 
 let W=1,H=1;
@@ -588,14 +594,14 @@ const STEPS=[
   acts:()=>[{t:'drive'},{t:'show'},walk([[-14,GY,8.6],[-18,GY,14],[LX,GY,FZ-.6],[LX,GY,LZ]]),{t:'lift',up:true}]},
  {key:'lift',title:'올라가는 엘리베이터 안',who:'속마음',cam:'lift',
   acts:()=>[{t:'liftRide',dur:6},...say(SCRIPT.lift),{t:'liftWait'},walk([[LX,0,LZ],[LX,0,FZ-1],[-21,0,9],[-6,0,8.4],[0,0,7]])]},
- {key:'s1',title:'자리에서 고민하다가…',who:'주임님 · 사수님',cam:'row',
+ {key:'s1',title:'자리에서 고민하다가…',who:'PL · 사수',cam:'row',
   acts:()=>[{t:'sit'},...say(SCRIPT.ponder),{t:'face',id:'s1'},...say(SCRIPT.s1),{t:'stamp',box:0,text:'승인',at:'s1'}]},
  {key:'lead',title:'팀장님께',who:'팀장님',cam:'lead',
   acts:()=>[{t:'stand'},walk([[0,0,7],[-6,0,7.4],[-10,0,7.2]]),{t:'face',id:'lead'},...say(SCRIPT.lead),{t:'stamp',box:1,text:'승인',at:'lead'}]},
  {key:'boss',title:'지사장님 결재',who:'지사장님 · 지사장실',cam:'boss',
   acts:()=>[walk([[-10,0,7.2],[-6,0,7.4],[0,0,7]]),{t:'sit'},{t:'face',id:'desk'},...say(SCRIPT.boss),{t:'send',to:V3(0,2.4,-18),label:'반차 결재',pop:'결재 대기 중…'},{t:'choice'},{t:'bossResult'}]},
  {key:'girls',title:'탕비실의 시운 · 희연 · 선혜 주임님',who:'시운 · 희연 · 선혜 주임님',cam:'girls',
-  acts:()=>[{t:'stand'},...say(SCRIPT.girlsChat,true),walk([[0,0,7],[8,0,8.4],[13,0,13],[22.6,0,13.2],[23.4,0,16.6]]),{t:'face',id:'girls'},...(st.result==='no'?[{t:'mood',v:'angry'},...say(SCRIPT.girlsNo,true),{t:'boom'}]:[{t:'mood',v:'love'},...say(SCRIPT.girlsOk,true),{t:'confetti'}]),{t:'end'}]}
+  acts:()=>[{t:'stand'},...say(SCRIPT.girlsChat,true),walk([[0,0,7],[8,0,8.4],[13,0,13],[22.6,0,13.2],[23.4,0,16.6]]),{t:'face',id:'girls'},...(st.result==='no'?[{t:'mood',v:'angry'},...say(SCRIPT.girlsNo,true),{t:'boom'}]:[{t:'mood',v:'love'},...say(SCRIPT.girlsOk,true),{t:'celebrate'}]),{t:'end'}]}
 ];
 // where the hero is at the start of each step (so any step can be jumped to)
 const START={park:{pos:V3(40,GY,6),hidden:true,car:true},lift:{pos:V3(LX,GY,LZ),lift:GY},s1:{pos:V3(0,0,7)},lead:{pos:MY_SEAT.clone(),seated:true,yaw:Math.PI},boss:{pos:V3(-10,0,7.2)},girls:{pos:MY_SEAT.clone(),seated:true,yaw:Math.PI}};
@@ -633,6 +639,7 @@ function next(){st.a=st.q.shift()||null;st.at=0;const a=st.a;if(!a){render();ret
   if(a.t==='mood'){st.mood=a.v;a.dur=0;}
   if(a.t==='boom'){boom();a.dur=4.2;}
   if(a.t==='confetti'){burst();a.dur=1;}
+  if(a.t==='celebrate'){celebrate();a.dur=7;}
   if(a.t==='end'){a.dur=Infinity;setPlay(false);}
   render();
 }
@@ -682,7 +689,26 @@ function blast(pos,k){shake=Math.max(shake,1.6*k);$('#flash').style.opacity=.85;
     const a=Math.random()*Math.PI*2,sp=(8+Math.random()*12)*k;d.userData={v:V3(Math.cos(a)*sp,(9+Math.random()*12)*k,Math.sin(a)*sp),w:V3(Math.random()*8,Math.random()*8,Math.random()*8)};scene.add(d);debris.push(d);}
   const r=new THREE.Mesh(new THREE.TorusGeometry(1,.25,8,48),new THREE.MeshBasicMaterial({color:0xfff0c8,transparent:true,opacity:.8}));r.rotation.x=Math.PI/2;r.position.copy(pos).setY(.6);r.userData={t:0,k};scene.add(r);rings.push(r);}
 function boom(){boomSeq={t:0,next:0};camFly(V3(0,0,0),OV_O.clone().multiplyScalar(.82));}
-function resetBoom(){boomSeq=null;frozen=false;stage.classList.remove('sepia');$('#ending').classList.remove('on');overlay.style.visibility='';$('#flash').style.opacity=0;boomLight.intensity=0;
+// success finale: fireworks over the office, confetti cannons, a golden banner, everybody jumping
+let party=null;const fw=[];const fwTex=canvasTex((g,s)=>{const r=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.3,'rgba(255,255,255,.8)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,s,s);},64);
+const FW_COLS=[0xff5d6c,0xffd56b,0x7fe0a4,0x8fc3ff,0xff9ad5,0xffffff,0xc79bff];
+const partyLight=new THREE.PointLight(0xffd27a,0,80,1.2);partyLight.position.set(0,22,0);scene.add(partyLight);
+function rocket(){const x=(Math.random()-.5)*44,z=(Math.random()-.5)*36,h=16+Math.random()*10;const m=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),new THREE.MeshBasicMaterial({color:0xfff2c0}));m.position.set(x,0,z);scene.add(m);
+  fw.push({kind:'rocket',m,t:0,h,col:FW_COLS[Math.floor(Math.random()*FW_COLS.length)]});}
+function pop(pos,col){const n=reduced?50:140,P=new Float32Array(n*3),Vv=[];for(let i=0;i<n;i++){P.set([pos.x,pos.y,pos.z],i*3);const u=Math.random()*2-1,a=Math.random()*Math.PI*2,r=Math.sqrt(1-u*u),sp=7+Math.random()*3;Vv.push(V3(r*Math.cos(a)*sp,u*sp,r*Math.sin(a)*sp));}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));const m=new THREE.Points(g,new THREE.PointsMaterial({size:1.1,map:fwTex,color:col,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));scene.add(m);
+  fw.push({kind:'burst',m,t:0,v:Vv});partyLight.color.setHex(col);partyLight.intensity=6;}
+function celebrate(){party={t:0,next:0};camFly(V3(4,0,2),OV_O.clone().multiplyScalar(.78));
+  confettiOn=true;bits=Array.from({length:reduced?60:340},(_,i)=>{const side=i%3;return side===2?{x:Math.random()*W,y:-20-Math.random()*H*.6,vx:(Math.random()-.5)*60,vy:60+Math.random()*120,r:Math.random()*6.28,vr:(Math.random()-.5)*8,c:['#d8382f','#2f6fd6','#f2b544','#3f9a6e','#ff9ad5','#fff1a8'][i%6]}
+    :{x:side?W+10:-10,y:H*(.55+Math.random()*.3),vx:(side?-1:1)*(160+Math.random()*220),vy:-(220+Math.random()*260),r:Math.random()*6.28,vr:(Math.random()-.5)*10,g:1,c:['#d8382f','#2f6fd6','#f2b544','#3f9a6e','#ff9ad5','#fff1a8'][i%6]};});
+  $('#yay').classList.remove('on');void $('#yay').offsetWidth;$('#yay').classList.add('on');}
+function stepParty(dt){if(!party)return;party.t+=dt;while(party.t>party.next&&party.t<6.2){rocket();if(Math.random()<.5)rocket();party.next+=.38+Math.random()*.3;}
+  partyLight.intensity=Math.max(0,partyLight.intensity-dt*5);
+  for(let i=fw.length-1;i>=0;i--){const f=fw[i];f.t+=dt;
+    if(f.kind==='rocket'){f.m.position.y+=dt*26;if(f.m.position.y>=f.h){pop(f.m.position.clone(),f.col);scene.remove(f.m);fw.splice(i,1);}}
+    else{const p=f.m.geometry.attributes.position;for(let k=0;k<f.v.length;k++){f.v[k].y-=9*dt;f.v[k].multiplyScalar(.985);p.setXYZ(k,p.getX(k)+f.v[k].x*dt,p.getY(k)+f.v[k].y*dt,p.getZ(k)+f.v[k].z*dt);}p.needsUpdate=true;
+      f.m.material.opacity=Math.max(0,1-f.t/1.9);f.m.material.size=1.1*(1-f.t/2.4)+.3;if(f.t>1.9){scene.remove(f.m);fw.splice(i,1);}}}}
+function resetBoom(){party=null;fw.forEach(f=>scene.remove(f.m));fw.length=0;partyLight.intensity=0;$('#yay').classList.remove('on');boomSeq=null;frozen=false;stage.classList.remove('sepia');$('#ending').classList.remove('on');overlay.style.visibility='';$('#flash').style.opacity=0;boomLight.intensity=0;
   [...puffs,...debris,...rings].forEach(o=>scene.remove(o));puffs.length=0;debris.length=0;rings.length=0;}
 function stepBoom(dt){if(!boomSeq)return;boomSeq.t+=dt;
   while(boomSeq.next<BLASTS.length&&boomSeq.t>=BLASTS[boomSeq.next][0]){const [,p,k]=BLASTS[boomSeq.next++];blast(p,k);}
@@ -754,13 +780,14 @@ function tick(){
     const u=g.userData;u.lookYaw=yawTo(u.lookYaw,w,Math.min(1,dt*4));if(!u.fig)g.rotation.y=u.lookYaw;pose(g,false,talkWho===id);
     g.position.y=seatY(id)+(st.mood==='angry'&&engaged?Math.abs(Math.sin(T*9+id.length))*.35:st.mood==='love'&&engaged&&talkWho===id?Math.abs(Math.sin(T*6))*.15:0);
     if(!u.fig)u.head.rotation.y=engaged?0:Math.sin(T*.6+id.length)*.2;});
+  if(party&&party.t<6.6)Object.values(P).forEach((g,i)=>{g.position.y=(g.userData.seated?seatY('boss'):0)+Math.abs(Math.sin(T*7+i*1.3))*.55;});
   if(st.mood==='love'&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shiun','heeyeon','sunhye'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
   floaties.forEach(f=>{if(!f.sp.visible)return;f.t+=dt;f.sp.position.y+=dt*1.6;f.sp.scale.setScalar(.8*(1-f.t/2)+.2);if(f.t>1.8)f.sp.visible=false;});
   for(let i=puffs.length-1;i>=0;i--){const m=puffs[i],u=m.userData;u.t+=dt;m.position.addScaledVector(u.v,dt);u.v.multiplyScalar(.95);u.v.y+=dt*(u.life>2?1.5:0);m.scale.setScalar(.6+u.t*(u.grow||2.2));const L=u.life||2.2;m.material.opacity=Math.max(0,.95-u.t/L*.95);if(u.t>L){scene.remove(m);puffs.splice(i,1);}}
-  stepBoom(dt);
+  stepBoom(dt);stepParty(dt);
   ledA.emissiveIntensity=.4+.6*(Math.sin(T*7)>0?1:0);ledB.emissiveIntensity=.4+.6*(Math.sin(T*5+1)>0?1:0);
   // camera
-  if(!st.over&&!boomSeq){const c=CAMS[s.cam];let tgt;
+  if(!st.over&&!boomSeq&&!party){const c=CAMS[s.cam];let tgt;
     if(s.cam==='garage')tgt=(hero.visible?hero.position:st.carPos).clone().setY(GY+1.5);
     else if(s.cam==='lift')tgt=V3(LX,st.liftY+2,LZ);
     else if(s.cam==='lead')tgt=hero.position.clone().lerp(P.lead.position,.5).setY(1.5);
@@ -770,7 +797,7 @@ function tick(){
     const key=s.cam+(a.t==='walk'&&!['garage','lift'].includes(s.cam)?'w':'');
     if(camKey!==key){camKey=key;const o=(key.endsWith('w')?V3(.5,.72,.85).normalize().multiplyScalar(38):c.o.clone().normalize().multiplyScalar(c.d));camFly(null,o);}}
   if(fly){fly.t=Math.min(1,fly.t+dt/1.2);const e=ease(fly.t);const nt=fly.fT.clone().lerp(fly.tT||focus,e),no=fly.fO.clone().lerp(fly.tO,e);controls.target.copy(nt);camera.position.copy(nt).add(no);if(fly.t>=1)fly=null;}
-  else if(!boomSeq){tmp.copy(focus).sub(controls.target);controls.target.add(tmp);camera.position.add(tmp);}
+  else if(!boomSeq&&!party){tmp.copy(focus).sub(controls.target);controls.target.add(tmp);camera.position.add(tmp);}
   controls.update();
   if(shake>0){shake=Math.max(0,shake-dt*.7);const k=shake*1.1;camera.position.z+=(Math.random()-.5)*k;camera.position.x+=(Math.random()-.5)*k;camera.position.y+=(Math.random()-.5)*k;}
   clouds.forEach(([g,a2,r],i)=>{const na=a2+T*.01*(1+i%3*.3);g.position.x=Math.cos(na)*r;g.position.z=Math.sin(na)*r;});
@@ -785,7 +812,7 @@ function tick(){
   if(stampEl.classList.contains('on'))place(stampEl,headPos(stampEl.dataset.at).add(tmp.set(0,-.8,0)),48);
   if(boomEl.classList.contains('on'))place(boomEl,V3(+boomEl.dataset.x||0,7,+boomEl.dataset.z||-14),60);
   cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);cx.clearRect(0,0,W,H);
-  if(confettiOn){bits.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.r+=b.vr*dt;if(b.y>H+20){b.y=-20;b.x=Math.random()*W;}cx.save();cx.translate(b.x,b.y);cx.rotate(b.r);cx.fillStyle=b.c;cx.fillRect(-4,-2.5,8,5);cx.restore();});}
+  if(confettiOn){bits.forEach(b=>{if(b.g){b.vy+=520*dt;b.vx*=.985;if(b.y>H+20){b.g=0;b.vx=(Math.random()-.5)*60;b.vy=60+Math.random()*120;}}b.x+=b.vx*dt;b.y+=b.vy*dt;b.r+=b.vr*dt;if(b.y>H+20){b.y=-20;b.x=Math.random()*W;}cx.save();cx.translate(b.x,b.y);cx.rotate(b.r);cx.fillStyle=b.c;cx.fillRect(-4,-2.5,8,5);cx.restore();});}
 }
 setPlay(true);go(0,false);
 camera.position.copy(OV_T).add(OV_O);controls.target.copy(OV_T);
