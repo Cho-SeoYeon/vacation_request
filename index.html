@@ -419,7 +419,7 @@ function figure(key){
 const MODEL_TURN={};
 const gltf=window.THREE.GLTFLoader?new THREE.GLTFLoader():null;
 function loadModel(key,g,Hh){if(!gltf)return;
-  gltf.load('models/'+key+'.glb',res=>{const m=res.scene;m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material&&o.material.map)o.material.map.encoding=THREE.sRGBEncoding;}});
+  gltf.load('models/'+key+'.glb',res=>{const m=res.scene;m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;const mt=o.material;if(mt){if(mt.map)mt.map.encoding=THREE.sRGBEncoding;mt.metalness=0;mt.roughness=Math.max(.6,mt.roughness||0);mt.metalnessMap=null;mt.needsUpdate=true;}}});
     const box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3());const k=Hh/(size.y||1);m.scale.setScalar(k);
     box.setFromObject(m);const c=box.getCenter(new THREE.Vector3());m.position.set(-c.x,-box.min.y,-c.z);
     const holder=new THREE.Group();holder.rotation.y=MODEL_TURN[key]||0;holder.add(m);g.add(holder);g.userData.card.visible=false;
