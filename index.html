@@ -134,19 +134,19 @@ const CAST={
 };
 const LEAVE='18일 · 오후 반차';
 const SCRIPT={
- lift:[['me','아 진심 18일 오후반차 쓴다.','think'],['me','써야 된다.','think'],['me','쓰게 해 줘라…','think'],['me','못 쓰게 하기만 해 봐라 💢','think']],
+ lift:[['me','나 진짜 오후 반차 쓴다.','think'],['me','말리지 마라 💢','think']],
  ponder:[['me','말할까… 말까…','think'],['me','그래, 지금이다.','think']],
  s1:[['me','주임님, 저 18일 오후에 반차 좀 써도 될까요?'],
-     ['s2','대체휴가는 다 못 썼는데… 나 때는~'],['s2','나는 작년에 한 4개 남았었다~'],
+     ['s2','와 나 때는 대체휴가 다 못 썼는데…'],['s2','나는 작년에 4개인가 남았던 거 같은데.'],
      ['me','어쩌라고 씨발..','think'],
-     ['s1','네, 쓰세요. 일정만 공유해 주세요.'],['me','감사합니다!!']],
+     ['s1','그래요 써요~ 캘린더에만 올려줘요~'],['me','감사합니다!!']],
  lead:[['lead','○○ 주임한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
  boss:[['me','지사장님께 결재 상신… 제발!']],
  bossOk:[['me','승인 떴다!!! 🎉']],
- bossNo:[['me','반려…? 왜요… 😱']],
- girlsChat:[['shiun','오늘 커피 뭐 드세요?'],['heeyeon','저는 바닐라라떼요 ㅎㅎ'],['sunhye','저는 아아 수혈이요…']],
- girlsOk:[['me','주임님들!! 저 18일 오후 반차 승인 났어요!!'],['shiun','와 축하드려요!! 잘 쉬다 오세요 ♡'],['heeyeon','너무 부러워요… 뭐 하실 거예요??'],['sunhye','반차 성공 축하드려요 🎉'],['me','일단 낮잠부터 자려고요 ㅎㅎ'],['shiun','최고의 계획이에요 ㅎㅎ'],['heeyeon','맛있는 거 드시고 사진 보내 주세요!!'],['sunhye','진짜 부러워요~ 잘 다녀오세요!']],
- girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['sunhye','네?? 회사 폭파시켜 드릴까요? 💢'],['heeyeon','회사 진짜 거지네요 거지!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요 💢'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
+ bossNo:[['boss','당일 반차 올리지 마라, 다들.'],['me','반려…? 😱']],
+ girlsChat:[['shiun','오늘 커피 드시나요?'],['heeyeon','저는 바닐라라떼요'],['sunhye','저는 아이스아메리카노요 ㅎㅎ']],
+ girlsOk:[['me','주임님들!! 저 18일 오후 반차 승인 났어요!!'],['shiun','와 축하드려요!! 잘 쉬다 오세요 ♡'],['heeyeon','너무 부러워요… 뭐 하실 거예요??'],['sunhye','반차 성공 축하드려요 🎉'],['heeyeon','맛있는 거 드시고 사진 보내 주세요!!'],['sunhye','진짜 부러워요~ 잘 다녀오세요!']],
+ girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['heeyeon','네?? 회사 폭파시켜 드릴까요? 💢'],['sunhye','회사 거지같네요!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요 💢'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
 };
 
 (async function(){
@@ -313,9 +313,8 @@ mesh(RB(1.6,.2,1,.06),M(0x22252c),-19,1.4,-14);monitor(-19,1.5,-14.2,0,scene,1,1
   const m=new THREE.Mesh(new THREE.PlaneGeometry(7,3.6),new THREE.MeshStandardMaterial({map:kb,roughness:.8}));m.position.set(-FX+.05,2.8,2);m.rotation.y=Math.PI/2;scene.add(m);
   const neon=canvasTex((g,w,h)=>{g.fillStyle='rgba(0,0,0,0)';g.clearRect(0,0,w,h);g.font='54px Jua,sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor='#ff4fd8';g.shadowBlur=18;g.fillStyle='#ffd1f5';g.fillText('</> BUILD · SHIP',w/2,h/2);},420,96);
   const n=new THREE.Mesh(new THREE.PlaneGeometry(6,1.4),new THREE.MeshBasicMaterial({map:neon,transparent:true}));n.position.set(-FX+.06,4.4,9);n.rotation.y=Math.PI/2;scene.add(n);}
-// phone booth pod + beanbags + logo
-{const x=12,z=19;mesh(RB(3,4.2,3,.3),M(0x3f9a6e),x,2.1,z);mesh(RB(2.4,3.4,.1,.1),new THREE.MeshStandardMaterial({color:CL(0xcfe8f5),transparent:true,opacity:.45,roughness:.05}),x,2.1,z+1.52,scene,false,false);
-  mesh(RB(1.8,.8,1,.2),M(0xf2b544),x,.6,z-.6);sign('폰부스','#2d2a26',x,4.6,z+1.56,1.6);}
+// pantry glass room (door on the left side) + beanbags + logo
+glass(12,7,FX,7);glass(12,7,12,FZ,4.2,[.24,.46]);glass(FX,7,FX,FZ);
 [[24,18,0xff9ad5],[27,15,0x7fd4ff],[27.5,19.5,0xf2b544]].forEach(([x,z,c])=>{const b=mesh(new THREE.SphereGeometry(1,16,12),M(c,{roughness:.9}),x,.65,z);b.scale.set(1.1,.65,1.1);});
 sign('R&D LAB','#1e2a3a',-14,4.6,-FZ+.3,4.4);
 // pantry: kept right where it was
@@ -326,7 +325,7 @@ sign('R&D LAB','#1e2a3a',-14,4.6,-FZ+.3,4.4);
   for(let i=0;i<4;i++)mesh(new THREE.CylinderGeometry(.18,.18,.4,10),M([0xd8382f,0xf2b544,0x3f9a6e,0x2f6fd6][i]),19+i*.5,1.95,10.2,scene,false);
   mesh(new THREE.CylinderGeometry(1.1,1.1,.12,20),deskTop,18,1.4,16);mesh(new THREE.CylinderGeometry(.1,.1,1.4,8),deskLeg,18,.7,16);
   [[16.4,16],[19.6,16]].forEach(([x,z])=>{mesh(new THREE.CylinderGeometry(.45,.45,.14,14),M(0xf2b544),x,1,z);mesh(new THREE.CylinderGeometry(.06,.06,1,6),deskLeg,x,.5,z,scene,false);});
-  sign('탕비실','#c0392b',20,4.2,7.5,2.6);}
+  sign('탕비실','#c0392b',21,4.7,7.1,2.6);}
 [[-28,-4],[28,1],[2,18],[28,-2],[-28,20],[12,-21],[6,-8]].forEach(([x,z])=>plant(x,z,.9));
 const clouds=[];{const cm=M(0xffffff,{roughness:1}),pg=new THREE.IcosahedronGeometry(1,3);
   for(let i=0;i<10;i++){const g=new THREE.Group();for(let k=0;k<5;k++){const p=mesh(pg,cm,(k-2.5)*2.4,Math.sin(k)*.5,(k%2)*1.1,g,false,false);p.scale.setScalar(1.8+(k%3)*.6);}
@@ -576,7 +575,7 @@ const STEPS=[
  {key:'park',title:'지하주차장 도착',who:'B1 주차장',cam:'garage',
   acts:()=>[{t:'drive'},{t:'show'},walk([[-14,GY,8.6],[-18,GY,14],[LX,GY,FZ-.6],[LX,GY,LZ]]),{t:'lift',up:true}]},
  {key:'lift',title:'올라가는 엘리베이터 안',who:'속마음',cam:'lift',
-  acts:()=>[{t:'liftRide',dur:9.2},...say(SCRIPT.lift),{t:'liftWait'},walk([[LX,0,LZ],[LX,0,FZ-1],[-21,0,9],[-6,0,8.4],[0,0,7]])]},
+  acts:()=>[{t:'liftRide',dur:6},...say(SCRIPT.lift),{t:'liftWait'},walk([[LX,0,LZ],[LX,0,FZ-1],[-21,0,9],[-6,0,8.4],[0,0,7]])]},
  {key:'s1',title:'자리에서 고민하다가…',who:'주임님 · 사수님',cam:'row',
   acts:()=>[{t:'sit'},...say(SCRIPT.ponder),{t:'face',id:'s1'},...say(SCRIPT.s1),{t:'stamp',box:0,text:'승인',at:'s1'}]},
  {key:'lead',title:'팀장님께',who:'팀장님',cam:'lead',
@@ -607,7 +606,7 @@ function go(i,user){
 }
 function next(){st.a=st.q.shift()||null;st.at=0;const a=st.a;if(!a){render();return;}
   if(a.t==='walk'){a.path=poly([hero.position.clone()].concat(a.pts.slice(1)));a.dur=Math.max(.6,a.path.len/4.5);}
-  if(a.t==='say'){const b=bubbleFor(a.who);b.text=a.text;b.t0=simT;b.hold=a.chat?4.6:a.dur;b.el.className='bub'+(a.who==='me'?' me':'')+(a.think?' think':'');if(!a.chat)Object.entries(bubbles).forEach(([k,o])=>{if(k!==a.who)o.t0=-99;});}
+  if(a.t==='say'){const b=bubbleFor(a.who);b.text=a.text;b.t0=simT;b.hold=a.chat?3.2:a.dur;b.el.className='bub'+(a.who==='me'?' me':'')+(a.think?' think':'');if(!a.chat)Object.entries(bubbles).forEach(([k,o])=>{if(k!==a.who)o.t0=-99;});}
   if(a.t==='show'){hero.visible=true;hero.position.set(-15.6,GY,8.6);a.dur=.3;}
   if(a.t==='lift'){st.doorOpen=1;a.dur=.6;}
   if(a.t==='liftRide'){st.liftT={t0:simT,dur:a.dur};a.dur=0;}
@@ -749,7 +748,7 @@ function tick(){
   Object.keys(SEATS).forEach(id=>{const b=bubbles[id];const speaking=b&&T-b.t0<b.hold;const near=s.cam!=='garage'&&s.cam!=='lift';if(near&&!speaking)place(tags[id],headPos(id).add(tmp.set(0,.2,0)));else tags[id].style.display='none';});
   Object.entries(bubbles).forEach(([id,b])=>{const age=T-b.t0;if(age>b.hold){b.el.style.opacity=0;return;}
     const n=Math.min(b.text.length,Math.floor(age*28));b.el.querySelector('span').textContent=b.text.slice(0,n)||'…';b.el.style.opacity=1;
-    place(b.el,headPos(id).add(tmp.set(0,.35,0)),-6);b.el.style.zIndex=String(Math.round(1000-age*10));});
+    place(b.el,headPos(id).add(tmp.set(0,.35,0)),-6-({heeyeon:48}[id]||0));b.el.style.zIndex=String(Math.round(1000-age*10));});
   if(flying)place(docTag,docMesh.position.clone().add(tmp.set(0,1,0)));else docTag.style.display='none';
   if(T-popT<1.8&&popAt){popEl.style.opacity=1;place(popEl,popAt.clone().add(tmp.set(0,1.4+(T-popT)*.6,0)));}else popEl.style.opacity=0;
   if(stampEl.classList.contains('on'))place(stampEl,headPos(stampEl.dataset.at).add(tmp.set(0,-.8,0)),48);
