@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>연차 결재 대작전</title>
+<title>반차 결재 대작전</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
-/* Layout: floating office diorama on top; a paper "approval form" sheet at the bottom with six stamp boxes */
+/* Layout: a floating two-level IT office (B1 parking + office) on top; a paper approval form docked at the bottom */
 :root{
   --sheet:#fffdf7;--ink:#2d2a26;--muted:#857b70;--rule:rgba(45,42,38,.12);--chip:#f1ece2;
   --stamp:#d8382f;--accent:#2f6fd6;--ok:#3f9a6e;--gold:#f2b544;
@@ -28,17 +28,23 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 #stage canvas{display:block;touch-action:none}
 #overlay{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .tag{position:absolute;left:0;top:0;white-space:nowrap;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:rgba(255,253,247,.92);color:#2d2a26;box-shadow:0 2px 6px rgba(0,0,0,.15)}
-.tag.room{background:rgba(45,42,38,.75);color:#fff;font-weight:500}
-.bub{position:absolute;left:0;top:0;max-width:min(240px,62vw);font-size:14px;line-height:1.4;background:#fff;color:#2d2a26;padding:8px 12px 9px;border-radius:16px;
+.tag.pop{background:#2f6fd6;color:#fff;transition:opacity .2s}
+.bub{position:absolute;left:0;top:0;max-width:min(230px,60vw);font-size:14px;line-height:1.4;background:#fff;color:#2d2a26;padding:8px 12px 9px;border-radius:16px;
   box-shadow:0 6px 18px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;white-space:normal;word-break:keep-all}
-.bub b{display:block;font-family:var(--f-display);font-weight:400;font-size:12px;color:var(--accent);margin-bottom:1px}
-.bub.npc b{color:#c0392b}
+.bub b{display:block;font-family:var(--f-display);font-weight:400;font-size:12px;color:#c0392b;margin-bottom:1px}
 .bub::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
-.bub.me{background:#eaf2ff}.bub.me::after{border-top-color:#eaf2ff}
+.bub.me{background:#eaf2ff}.bub.me b{color:var(--accent)}.bub.me::after{border-top-color:#eaf2ff}
+.bub.think{background:#f6f3ff;border-radius:22px;color:#4a4458}
+.bub.think b{color:#7c5cc4}
+.bub.think::after{border:0;width:12px;height:12px;border-radius:50%;background:#f6f3ff;bottom:-10px;margin-left:-14px;box-shadow:-9px 9px 0 -3px #f6f3ff}
 .stampfx{position:absolute;left:0;top:0;width:96px;height:96px;margin:-48px 0 0 -48px;border:5px solid var(--stamp);border-radius:50%;color:var(--stamp);
-  font-family:var(--f-display);font-size:30px;display:grid;place-items:center;transform:rotate(-14deg) scale(2.2);opacity:0;background:rgba(255,255,255,.55)}
+  font-family:var(--f-display);font-size:30px;display:grid;place-items:center;transform:rotate(-14deg) scale(2.2);opacity:0;background:rgba(255,255,255,.6)}
+.stampfx.no{border-color:#333;color:#333}
 .stampfx.on{animation:stamp .5s cubic-bezier(.2,1.6,.4,1) forwards}
 @keyframes stamp{to{transform:rotate(-14deg) scale(1);opacity:1}}
+.boom{position:absolute;left:0;top:0;font-family:var(--f-display);font-size:64px;color:#ff5a1f;-webkit-text-stroke:3px #fff;opacity:0;transform:scale(.3)}
+.boom.on{animation:boom 1.6s ease-out forwards}
+@keyframes boom{15%{opacity:1;transform:scale(1.25)}60%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.1)}}
 #confetti{position:absolute;inset:0;pointer-events:none}
 
 .top{position:fixed;top:0;left:0;right:0;z-index:5;pointer-events:none;padding-top:calc(env(safe-area-inset-top,0px) + 12px);
@@ -54,21 +60,26 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
   display:flex;flex-direction:column;gap:10px;box-shadow:0 -10px 30px rgba(20,30,50,.2)}
 .form-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .form-h h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:17px}
-.form-h span{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.stamps{display:grid;grid-template-columns:repeat(6,1fr);border:1.5px solid var(--ink);border-radius:6px;overflow:hidden}
-.box{border-left:1px solid var(--ink);display:flex;flex-direction:column;min-width:0;cursor:pointer;background:transparent;color:inherit;font:inherit;padding:0}
+.form-h span{font-size:11.5px;color:var(--muted)}
+.stamps{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--ink);border-radius:6px;overflow:hidden}
+.box{border:0;border-left:1px solid var(--ink);display:flex;flex-direction:column;min-width:0;cursor:pointer;background:transparent;color:inherit;font:inherit;padding:0}
 .box:first-child{border-left:0}
-.box .r{font-size:10px;font-weight:600;text-align:center;padding:3px 2px;border-bottom:1px solid var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--chip)}
-.box .s{height:44px;display:grid;place-items:center;position:relative}
-.box .s i{width:36px;height:36px;border-radius:50%;border:2.5px solid var(--stamp);color:var(--stamp);font-style:normal;font-family:var(--f-display);font-size:12px;
+.box .r{font-size:11px;font-weight:600;text-align:center;padding:3px 2px;border-bottom:1px solid var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--chip)}
+.box .s{height:44px;display:grid;place-items:center}
+.box .s i{width:38px;height:38px;border-radius:50%;border:2.5px solid var(--stamp);color:var(--stamp);font-style:normal;font-family:var(--f-display);font-size:12px;
   display:grid;place-items:center;transform:rotate(-14deg);opacity:0;transition:opacity .2s}
 .box.done .s i{opacity:1}
+.box.rej .s i{border-color:var(--ink);color:var(--ink)}
 .box.now .r{background:var(--gold);color:#2d2410}
 .box:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.scene{display:flex;flex-direction:column;gap:4px;min-height:88px}
+.scene{display:flex;flex-direction:column;gap:4px;min-height:84px}
 .scene .who{font-size:12px;font-weight:600;color:var(--accent)}
 .scene h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:21px}
-.scene p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink);min-height:2.6em}
+.scene p{margin:0;font-size:13.5px;line-height:1.55;min-height:2.6em}
+#choice{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#choice span{font-size:13px;font-weight:600;flex:1 1 100%}
+#choice .btn{flex:1}
+#okBtn{background:var(--ok);color:#fff}#noBtn{background:#3b3f4c;color:#fff}
 .ctrls{display:flex;gap:8px}
 .btn{border:0;background:var(--chip);color:var(--ink);border-radius:14px;height:44px;min-width:44px;padding:0 12px;font:inherit;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 .btn svg{width:16px;height:16px;fill:currentColor}
@@ -76,26 +87,27 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 .btn.on{background:var(--gold);color:#2d2410}
 #err{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#2d2a26}
 @media (min-width:760px){#sheet{left:auto;right:16px;bottom:16px;width:400px;border-radius:24px}}
-@media (prefers-reduced-motion:reduce){.stampfx.on{animation:none;transform:rotate(-14deg);opacity:1}}
+@media (prefers-reduced-motion:reduce){.stampfx.on,.boom.on{animation:none;opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <div id="stage"><div id="overlay"></div><canvas id="confetti"></canvas></div>
-<div class="top"><div class="brand"><h1>연차 <b>결재</b> 대작전</h1><p id="sub">결재 0 / 6</p></div></div>
+<div class="top"><div class="brand"><h1>반차 <b>결재</b> 대작전</h1><p id="sub">결재 0 / 3</p></div></div>
 
-<section id="sheet" aria-label="연차 신청서">
-  <div class="form-h"><h2>연차 신청서</h2><span>12월 26일(금) · 1일</span></div>
+<section id="sheet" aria-label="반차 신청서">
+  <div class="form-h"><h2>반차 신청서</h2><span id="leave"></span></div>
   <div class="stamps" id="stamps"></div>
   <div class="scene">
     <div class="who" id="who"></div>
     <h3 id="title"></h3>
     <p id="line"></p>
   </div>
+  <div id="choice" hidden><span>지사장님 결재 결과는?</span><button class="btn" id="okBtn" type="button">승인 🎉</button><button class="btn" id="noBtn" type="button">반려 😭</button></div>
   <div class="ctrls">
-    <button class="btn" id="prev" aria-label="이전 사람"><svg viewBox="0 0 24 24"><path d="M15.5 4 7 12l8.5 8 1.5-1.6L10.2 12 17 5.6z"/></svg></button>
+    <button class="btn" id="prev" aria-label="이전 장면"><svg viewBox="0 0 24 24"><path d="M15.5 4 7 12l8.5 8 1.5-1.6L10.2 12 17 5.6z"/></svg></button>
     <button class="btn play" id="play">일시정지</button>
-    <button class="btn" id="next" aria-label="다음 사람"><svg viewBox="0 0 24 24"><path d="M8.5 4 17 12l-8.5 8L7 18.4 13.8 12 7 5.6z"/></svg></button>
-    <button class="btn" id="over">전체</button>
+    <button class="btn" id="next" aria-label="다음 장면"><svg viewBox="0 0 24 24"><path d="M8.5 4 17 12l-8.5 8L7 18.4 13.8 12 7 5.6z"/></svg></button>
+    <button class="btn" id="other" type="button">다른 결말</button>
   </div>
 </section>
 
@@ -104,31 +116,40 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
 <script>
 /* =====================================================================
-   여기만 고치면 돼요: 등장인물 이름 · 역할 · 대사
-   who: 'me' = 주인공, 'npc' = 그 장면의 상대
+   여기만 고치면 돼요: 등장인물 생김새 · 대사 (실명 대신 역할/별명만)
+   대사 앞의 이름: me=나, s1=안경 쓴 사수 주임님, s2=검은 후드 선배, lead=팀장님,
+   shoong/hee/sun=슝주/희주/선주.  'think'가 붙으면 속마음 말풍선이에요.
    ===================================================================== */
-const HERO={name:'나',top:0x6f8fb8,pants:0x3b3f4c,hair:0x3a2a20,hairStyle:'short'};
-const PEOPLE=[
- {id:'kim', name:'김대리', role:'옆자리', top:0xe9a23b,pants:0x4a4f60,hair:0x2b1f18,hairStyle:'side',glasses:true},
- {id:'park',name:'박과장', role:'파트장', top:0x7aa982,pants:0x3b3f4c,hair:0x1f1a17,hairStyle:'short',tie:0x2f4f8a},
- {id:'lee', name:'이팀장', role:'팀장',   top:0x4b5a78,pants:0x2b2e38,hair:0x3a3a3a,hairStyle:'part',tie:0xb03a2e,glasses:true},
- {id:'choi',name:'최주임', role:'인사팀', top:0xf2c7d3,pants:0x5a5f73,hair:0x4a2c1e,hairStyle:'long'},
- {id:'jung',name:'정사원', role:'막내',   top:0xf4e3b5,pants:0x6b7fa8,hair:0x2b1f18,hairStyle:'ponytail'},
- {id:'ceo', name:'대표님', role:'대표',   top:0x2b2e38,pants:0x2b2e38,hair:0xb9b9b9,hairStyle:'bald',tie:0x7a2a6b,glasses:true}
-];
-const SCENES=[
- {id:'kim',title:'옆자리부터 슬쩍',lines:[['me','대리님… 저 26일 금요일에 연차 쓰려고요.'],['npc','오 크리스마스 다음 날? 완전 4일 연휴네 👀'],['me','네 ㅎㅎ 그날 급한 메일만 좀 봐주실 수 있어요?'],['npc','콜! 대신 인수인계 메모는 꼭 남겨~']]},
- {id:'park',title:'파트장님께 일정 확인',lines:[['me','과장님, 26일 연차 괜찮을까요?'],['npc','음… 그 주에 배포 있지 않았나?'],['me','배포는 24일이라 미리 끝내놓을게요!'],['npc','그럼 OK. 체크리스트만 공유해줘 👍']]},
- {id:'lee',title:'회의실의 팀장님',lines:[['me','팀장님, 26일 연차 결재 올렸습니다.'],['npc','파트장이랑 얘기됐지?'],['me','네, 배포는 미리 끝내기로 했어요.'],['npc','좋아, 승인. 연말인데 푹 쉬고 와요.']]},
- {id:'choi',title:'인사팀 등록',lines:[['me','주임님, 연차 하나 등록 부탁드려요.'],['npc','잔여 연차 3일 남으셨네요. 26일 맞으시죠?'],['me','네 맞아요!'],['npc','등록 완료됐습니다 ✨']]},
- {id:'jung',title:'탕비실의 막내',lines:[['npc','선배 커피 드실래요? 표정이 좋으시네요?'],['me','나 26일 연차 됐어 ㅎㅎ'],['npc','헉 부러워요… 선물 사 오셔야 돼요!'],['me','알았어, 귤 한 박스 콜 🍊']]},
- {id:'ceo',title:'마지막은 대표님',lines:[['npc','오, 무슨 일로 왔어요?'],['me','26일 연차 내서… 인사드리러 왔습니다!'],['npc','연차는 권리지! 재충전하고 와요.'],['me','감사합니다!! 🙇']]}
-];
-const FINALE=[['me','결재 6개 다 받았다… 연차 확정! 🎉']];
+const CAST={
+ me:    {name:'나',top:0x8fb3d9,pants:0x3b3f4c,hair:0x2b1f18,hairStyle:'short',scale:.86},
+ s1:    {name:'사수 주임님',top:0x6f6b3c,quilt:true,pants:0x3b3f4c,hair:0x1f1a17,hairStyle:'short',glasses:true,scale:.76},
+ s2:    {name:'옆자리 선배',top:0x1e1f24,hood:true,pants:0x4a4f60,hair:0x6b4430,hairStyle:'side',scale:.98,wide:1.22},
+ lead:  {name:'팀장님',top:0x5b6d86,pants:0x2b2e38,hair:0x2b2b2b,hairStyle:'part',scale:.88},
+ boss:  {name:'지사장님',top:0x2b2e38,pants:0x2b2e38,hair:0x9a9a9a,hairStyle:'part',tie:0x7a2a3b,glasses:true,scale:.88},
+ shoong:{name:'슝주',top:0xf6efe4,pants:0xc9b8a6,hair:0x16120f,hairStyle:'straight',eyeSmile:true,scale:.8,wide:.88},
+ hee:   {name:'희주',top:0xf7f3ea,heart:true,pants:0x5d7fae,hair:0x7a4a2e,hairStyle:'medlong',cap:0x1e1f24,scale:.82},
+ sun:   {name:'선주',top:0x1b1c20,pants:0x3b3f4c,hair:0x0f0d0c,hairStyle:'wavy',scale:.82}
+};
+const LEAVE='18일 · 오후 반차';
+const SCRIPT={
+ lift:[['me','아 진심 18일 오후반차 쓴다.','think'],['me','써야 된다.','think'],['me','쓰게 해 줘라…','think'],['me','못 쓰게 하기만 해 봐라 💢','think']],
+ ponder:[['me','말할까… 말까…','think'],['me','그래, 지금이다.','think']],
+ s1:[['me','주임님, 저 18일 오후에 반차 좀 써도 될까요?'],
+     ['s2','대체휴가는 다 못 썼는데… 나 때는~'],['s2','나는 작년에 한 4개 남았었다~'],
+     ['me','어쩌라고 씨발..','think'],
+     ['s1','그래, 써. 일정만 공유해 줘요.'],['me','감사합니다!!']],
+ lead:[['lead','○○ 주임한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
+ boss:[['me','지사장님께 결재 상신… 제발!']],
+ bossOk:[['me','승인 떴다!!! 🎉']],
+ bossNo:[['me','반려…? 왜요… 😱']],
+ girlsOk:[['me','나 18일 오후 반차 성공했어!!'],['shoong','와 축하해!! 잘 쉬다 와 ♡'],['hee','부럽다 진짜… 머 할 거야??'],['sun','반차 성공 축하축하 🎉'],['me','일단 낮잠부터 자려고 ㅎㅎ'],['shoong','최고의 계획이다 ㅎㅎ'],['hee','맛있는 거 먹고 사진 보내줘!!'],['sun','부럽다 부러워~ 잘 다녀와!']],
+ girlsNo:[['me','나 반차… 반려됐어 😭'],['sun','뭐?? 회사 폭파시켜 버릴까 💢'],['hee','회사 진짜 거지다 거지!!'],['shoong','회사 바보야… 내가 혼내줄게!!'],['sun','지사장실 쳐들어가자 💢'],['hee','우리가 대신 화내줄게!!'],['shoong','회사 폭파 3, 2, 1…']]
+};
 
 (async function(){
 try{await Promise.race([document.fonts.load('40px Jua'),new Promise(r=>setTimeout(r,1500))]);}catch(e){}
 const $=s=>document.querySelector(s);const stage=$('#stage'),sheet=$('#sheet'),overlay=$('#overlay');
+$('#leave').textContent=LEAVE;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let renderer;
 try{renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});}catch(e){stage.insertAdjacentHTML('beforeend','<div id="err">이 기기에서는 3D 사무실을 열 수 없어요.</div>');return;}
@@ -137,7 +158,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputEncoding=THR
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.setClearColor(0,0);
 stage.insertBefore(renderer.domElement,stage.firstChild);
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(30,1,1,900);
-const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=1.25;controls.minDistance=10;controls.maxDistance=260;controls.screenSpacePanning=false;
+const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.08;controls.maxPolarAngle=1.5;controls.minDistance=8;controls.maxDistance=260;controls.screenSpacePanning=false;
 
 /* kit */
 const CL=h=>new THREE.Color(h).convertSRGBToLinear();
@@ -148,268 +169,386 @@ const RB=(w,h,d,r=.15)=>new THREE.RoundedBoxGeometry(w,h,d,2,Math.max(.01,Math.m
 function canvasTex(draw,w=128,h=w){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;return t;}
 function signTex(text,bg,fg='#fff'){return canvasTex((g,w,h)=>{g.fillStyle=bg;g.beginPath();g.roundRect?g.roundRect(4,4,w-8,h-8,16):g.rect(4,4,w-8,h-8);g.fill();g.fillStyle=fg;g.textAlign='center';g.textBaseline='middle';
   let fs=50;g.font=fs+'px Jua,sans-serif';while(g.measureText(text).width>w-30&&fs>18){fs-=2;g.font=fs+'px Jua,sans-serif';}g.fillText(text,w/2,h/2+3);},320,96);}
-function sign(text,bg,x,y,z,w=3,ry=0,parent=scene){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w*.3),new THREE.MeshStandardMaterial({map:signTex(text,bg),roughness:.7}));m.position.set(x,y,z);m.rotation.y=ry;parent.add(m);return m;}
+function sign(text,bg,x,y,z,w=3,ry=0,fg){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w*.3),new THREE.MeshStandardMaterial({map:signTex(text,bg,fg),roughness:.7}));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m);return m;}
 
 /* lights */
-scene.add(new THREE.HemisphereLight(0xeef6ff,0x9a8f84,.8));
-const sun=new THREE.DirectionalLight(0xfff3e2,1.5);sun.position.set(-40,70,45);sun.castShadow=true;const SM=mobile?1536:2048;sun.shadow.mapSize.set(SM,SM);
-Object.assign(sun.shadow.camera,{left:-50,right:50,top:50,bottom:-50,near:10,far:180});sun.shadow.bias=-.0004;sun.shadow.normalBias=.03;scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xeef6ff,0x9a8f84,.85));
+const sun=new THREE.DirectionalLight(0xfff3e2,1.45);sun.position.set(-40,70,45);sun.castShadow=true;const SM=mobile?1536:2048;sun.shadow.mapSize.set(SM,SM);
+Object.assign(sun.shadow.camera,{left:-50,right:50,top:50,bottom:-50,near:10,far:200});sun.shadow.bias=-.0004;sun.shadow.normalBias=.03;scene.add(sun);
+const GY=-9;
+[[-12,GY+5,6],[12,GY+5,6]].forEach(([x,y,z])=>{const l=new THREE.PointLight(0xfff1d8,1.1,40,1.6);l.position.set(x,y,z);scene.add(l);});
 
-/* ================= office floor (floating slab, dollhouse cut) ================= */
+/* ================= building: B1 parking + office floor ================= */
 const FX=30,FZ=24;
-const woodTex=canvasTex((g,s)=>{for(let i=0;i<8;i++){const v=200+((i*37)%28);g.fillStyle=`rgb(${v},${v-35},${v-80})`;g.fillRect(0,i*s/8,s,s/8);g.fillStyle='rgba(90,60,30,.25)';g.fillRect(0,i*s/8,s,1.5);
-  g.fillRect(((i*53)%s),i*s/8,1.5,s/8);}for(let k=0;k<300;k++){g.fillStyle='rgba(120,80,40,.07)';g.fillRect(Math.random()*s,Math.random()*s,8,1);}},256);woodTex.repeat.set(10,8);
-mesh(RB(FX*2+1,1.6,FZ*2+1,.4),M(0xd9d4cc),0,-.8,0,scene,true,true);
-mesh(RB(FX*2+1.6,.6,FZ*2+1.6,.3),M(0xaaa49b),0,-1.9,0);
-mesh(RB(FX*2-2,1.4,FZ*2-2,.6),M(0x8f8a82),0,-2.8,0,scene,false,false);
+const woodTex=canvasTex((g,s)=>{for(let i=0;i<8;i++){const v=200+((i*37)%28);g.fillStyle=`rgb(${v},${v-35},${v-80})`;g.fillRect(0,i*s/8,s,s/8);g.fillStyle='rgba(90,60,30,.25)';g.fillRect(0,i*s/8,s,1.5);g.fillRect(((i*53)%s),i*s/8,1.5,s/8);}},256);woodTex.repeat.set(10,8);
+mesh(RB(FX*2+1,1.6,FZ*2+1,.3),M(0xd9d4cc),0,-.8,0);
 const floor=mesh(new THREE.PlaneGeometry(FX*2,FZ*2),new THREE.MeshStandardMaterial({map:woodTex,roughness:.7}),0,.01,0,scene,false,true);floor.rotation.x=-Math.PI/2;
-function rug(x,z,w,d,c){mesh(RB(w,.06,d,.03),M(c,{roughness:1}),x,.05,z,scene,false,true);}
-rug(0,-17,16,10,0x7d3a3a);rug(19,-14,14,12,0x5b6d86);rug(-19,-14,14,12,0xc8d4c4);rug(20,14,14,10,0xe8dfcf);
-// walls: back + left solid with windows; low front/right lips
+// parking level
+const concrete=M(0x9c9a96,{roughness:.95}),garageFloor=M(0x7c7f86,{roughness:.9});
+mesh(RB(FX*2+1,1.8,FZ*2+1,.3),M(0x8f8a82),0,GY-.9,0);mesh(new THREE.BoxGeometry(FX*2,.04,FZ*2),garageFloor,0,GY+.02,0,scene,false,false);
+mesh(RB(FX*2-1,1.2,FZ*2-1,.5),M(0x7a756d),0,GY-2.2,0,scene,false,false);
+mesh(new THREE.BoxGeometry(FX*2+.5,-GY-1.6,.5),concrete,0,(GY-1.6)/2,-FZ-.25,scene,false,false);mesh(new THREE.BoxGeometry(.5,-GY-1.6,FZ*2+.5),concrete,-FX-.25,(GY-1.6)/2,0,scene,false,false);
+for(let x=-24;x<=24;x+=12)for(let z=-16;z<=16;z+=16){mesh(RB(1,-GY-1.6,1,.1),M(0xb7b3ac),x,(GY-1.6)/2,z,scene,false,false);mesh(new THREE.BoxGeometry(1.05,.5,1.05),M(0xf2c94c),x,GY+.25,z,scene,false,false);}
+for(let x=-26;x<=26;x+=4.4){[[-10,-1],[10,1]].forEach(([z])=>{mesh(new THREE.BoxGeometry(.12,.03,5),M(0xffffff),x,GY+.05,z,scene,false,false);});}
+mesh(new THREE.BoxGeometry(56,.03,.14),M(0xf2c94c),0,GY+.05,0,scene,false,false);
+const lightStrip=M(0xffffff,{emissive:0xfff3d8,emissiveIntensity:1});for(let x=-22;x<=22;x+=11)mesh(new THREE.BoxGeometry(5,.1,.3),lightStrip,x,-1.65,0,scene,false,false);
+sign('B1','#2b2e36',-FX+.3,GY+5,-6,2,Math.PI/2);sign('출구 →','#3f9a6e',FX-1,GY+4,-6,3,-Math.PI/2);sign('EV 충전','#2f6fd6',-FX+.3,GY+3.5,-14,2.4,Math.PI/2);
+mesh(RB(.8,1.6,.5,.1),M(0xe8eaee),-FX+.7,GY+.8,-14);
+function car(color,x,z,ry){const g=new THREE.Group();g.position.set(x,GY,z);g.rotation.y=ry;scene.add(g);
+  mesh(RB(2.2,1,4,.4),M(color,{roughness:.35,metalness:.2}),0,.85,0,g,true,false);mesh(RB(1.9,.85,2.2,.35),M(color,{roughness:.35,metalness:.2}),0,1.65,-.2,g,true,false);
+  mesh(RB(1.95,.6,2.05,.25),M(0x2b3446,{roughness:.1,metalness:.4}),0,1.68,-.2,g,false,false);
+  [[-1,1.3],[1,1.3],[-1,-1.3],[1,-1.3]].forEach(([a,b])=>{const w=mesh(new THREE.CylinderGeometry(.42,.42,.3,14),M(0x1e1f24),a,.42,b,g,false,false);w.rotation.z=Math.PI/2;});
+  [-.6,.6].forEach(a=>mesh(new THREE.SphereGeometry(.16,8,6),M(0xfff6d6,{emissive:0xfff0c0,emissiveIntensity:.6}),a,.95,2,g,false,false));return g;}
+car(0xd8d8dc,-21.8,-10,0);car(0x2b2e36,-8.6,-10,0);car(0xd8382f,4.6,10,Math.PI);car(0x7aa982,17.8,-10,0);car(0xf2f2f4,22.2,10,Math.PI);
+const heroCar=car(0x2f6fd6,40,6,-Math.PI/2);
+// glass elevator shaft on the front-left corner, doors face into the building
+const LX=-24,LZ=FZ+2;
+{const post=M(0x5f6672,{metalness:.5,roughness:.35});[[-1.7,-1.7],[1.7,-1.7],[-1.7,1.7],[1.7,1.7]].forEach(([a,b])=>mesh(new THREE.BoxGeometry(.25,7.5-GY+.5,.25),post,LX+a,(GY+7.5)/2,LZ+b));
+  const gl=new THREE.MeshStandardMaterial({color:CL(0xcfe8f5),transparent:true,opacity:.22,roughness:.05,depthWrite:false});
+  [[0,1.7,3.4,.06],[-1.7,0,.06,3.4],[1.7,0,.06,3.4]].forEach(([a,b,w,d])=>mesh(new THREE.BoxGeometry(w,7.5-GY,d),gl,LX+a,(GY+7.5)/2,LZ+b,scene,false,false));
+  mesh(RB(3.8,.3,3.8,.1),post,LX,7.6,LZ);sign('엘리베이터','#5f6672',LX,6.6,LZ-1.75,2.6,Math.PI);
+  [0,GY].forEach(y=>mesh(new THREE.BoxGeometry(3.6,.3,.9),M(0xcfc8bc),LX,y-.15,FZ+.35,scene,false,true));}
+const lift=new THREE.Group();scene.add(lift);lift.position.set(LX,GY,LZ);
+{mesh(RB(3.1,.2,3.1,.05),M(0x9aa3ad,{metalness:.5,roughness:.35}),0,.1,0,lift);mesh(RB(3.1,.2,3.1,.05),M(0x9aa3ad,{metalness:.5,roughness:.35}),0,4.3,0,lift);
+  mesh(RB(3,4.1,.1,.03),new THREE.MeshStandardMaterial({color:CL(0xd9eef8),transparent:true,opacity:.25,roughness:.05,depthWrite:false}),0,2.2,1.5,lift,false,false);mesh(new THREE.BoxGeometry(3,.12,.14),M(0x9aa3ad),0,1.2,1.5,lift,false);mesh(new THREE.BoxGeometry(2.2,.1,.5),M(0xffffff,{emissive:0xffffff,emissiveIntensity:.8}),0,4.15,0,lift,false,false);}
+const doors=[-1,1].map(s=>mesh(RB(1.5,4,.1,.03),M(0xb9c1ca,{metalness:.6,roughness:.3}),s*.75,2.2,-1.5,lift,false,false));
+
+/* office walls, glass rooms */
 const wallM=M(0xf3efe7),trimM=M(0xb9b2a6);
 function wall(x,z,w,d,h=5){mesh(RB(w,h,d,.1),wallM,x,h/2,z);mesh(RB(w+.1,.25,d+.1,.06),trimM,x,h,z,scene,false);}
 wall(0,-FZ-.25,FX*2+.5,.5);wall(-FX-.25,0,.5,FZ*2+.5);
 const winM=M(0xbfe3f7,{emissive:0xd8f0ff,emissiveIntensity:.35,roughness:.1});
 for(let x=-26;x<=26;x+=6.5){mesh(RB(4.6,2.6,.12,.06),winM,x,2.8,-FZ+.06,scene,false,false);mesh(new THREE.BoxGeometry(.12,2.6,.16),trimM,x,2.8,-FZ+.06,scene,false);}
-for(let z=-18;z<=18;z+=6.5){mesh(RB(.12,2.6,4.6,.06),winM,-FX+.06,2.8,z,scene,false,false);}
-// glass partitions
 const glassM=new THREE.MeshStandardMaterial({color:CL(0xcfe8f5),transparent:true,opacity:.28,roughness:.05,metalness:.1,depthWrite:false});
 const frameM=M(0x5f6672,{metalness:.4,roughness:.4});
-function glass(ax,az,bx,bz,h=4.2,door){const len=Math.hypot(bx-ax,bz-az),ang=-Math.atan2(bz-az,bx-ax),cx=(ax+bx)/2,cz=(az+bz)/2;
-  const segs=door?[[0,door[0]],[door[1],1]]:[[0,1]];
-  segs.forEach(([t0,t1])=>{const l=len*(t1-t0),mx=ax+(bx-ax)*(t0+t1)/2,mz=az+(bz-az)*(t0+t1)/2;
+function glass(ax,az,bx,bz,h=4.2,door){const len=Math.hypot(bx-ax,bz-az),ang=-Math.atan2(bz-az,bx-ax);
+  (door?[[0,door[0]],[door[1],1]]:[[0,1]]).forEach(([t0,t1])=>{const l=len*(t1-t0),mx=ax+(bx-ax)*(t0+t1)/2,mz=az+(bz-az)*(t0+t1)/2;
     const g=mesh(new THREE.BoxGeometry(l,h,.08),glassM,mx,h/2,mz,scene,false,false);g.rotation.y=ang;
-    [[0,h,0],[0,.1,0]].forEach(([_,y])=>{const f=mesh(new THREE.BoxGeometry(l,.14,.16),frameM,mx,y,mz,scene,false);f.rotation.y=ang;});});
-}
-// CEO office (center back), meeting room (right back), HR (left back), pantry (right front)
-glass(-8,-12,8,-12,4.2,[.38,.62]);glass(-8,-12,-8,-FZ);glass(8,-12,8,-FZ);
-glass(12,-6,FX,-6,4.2,[.1,.32]);glass(12,-6,12,-FZ);
-sign('대표실','#2d2a26',0,4.7,-11.9,2.6);sign('회의실','#2f6fd6',21,4.7,-5.9,2.6);sign('인사팀','#3f9a6e',-19,4.7,-7.5,2.6);sign('탕비실','#c0392b',20,4.2,7.5,2.6);
+    [h,.1].forEach(y=>{const f=mesh(new THREE.BoxGeometry(l,.14,.16),frameM,mx,y,mz,scene,false);f.rotation.y=ang;});});}
+glass(-8,-12,8,-12,4.2,[.38,.62]);glass(-8,-12,-8,-FZ);glass(8,-12,8,-FZ);       // branch manager
+glass(12,-6,FX,-6,4.2,[.1,.32]);glass(12,-6,12,-FZ);                              // meeting room
+glass(-FX,-11,-16,-11,4.2,[.6,.85]);glass(-16,-11,-16,-FZ);                       // server room
+sign('지사장실','#2d2a26',0,4.7,-11.9,2.6);sign('회의실','#2f6fd6',21,4.7,-5.9,2.6);sign('서버실','#1e2a3a',-23,4.7,-10.9,2.6);
 
-/* furniture */
-const deskTop=M(0xf6f1e8),deskLeg=M(0x8f949c,{metalness:.4,roughness:.5}),screenOn=M(0x27324a,{emissive:0x6fa8ff,emissiveIntensity:.55,roughness:.3});
-function monitor(x,y,z,ry,p=scene){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=ry;p.add(g);
-  mesh(RB(1.6,1,.1,.04),M(0x2b2e36),0,.75,0,g);mesh(new THREE.PlaneGeometry(1.45,.85),screenOn,0,.75,.06,g,false,false);
-  mesh(new THREE.BoxGeometry(.12,.5,.12),M(0x2b2e36),0,.25,-.05,g);mesh(RB(.6,.06,.4,.02),M(0x2b2e36),0,.03,0,g);
-  mesh(RB(1.1,.05,.38,.02),M(0xe9e9ec),0,.03,.6,g,false);}
-function chair(x,z,ry,c=0x3b4458){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;scene.add(g);
-  mesh(RB(1.1,.2,1.1,.08),M(c),0,.95,0,g);mesh(RB(1.1,1.2,.18,.08),M(c),0,1.6,-.5,g);mesh(new THREE.CylinderGeometry(.07,.07,.8,8),deskLeg,0,.5,0,g);
+/* ================= IT office furniture ================= */
+const deskTop=M(0xf6f1e8),deskLeg=M(0x8f949c,{metalness:.4,roughness:.5});
+const codeTex=[0,1,2].map(k=>canvasTex((g,w,h)=>{g.fillStyle='#1b2130';g.fillRect(0,0,w,h);const cols=['#7fd4ff','#f2b544','#ff7aa8','#8fe0a4','#c7b8ff','#e8eaf0'];
+  for(let y=8;y<h-4;y+=9){const ind=((y*7+k*13)%5)*8;let x=6+ind;while(x<w-10&&Math.random()<.85){const l=8+Math.random()*26;g.fillStyle=cols[Math.floor(Math.random()*cols.length)];g.fillRect(x,y,l,4);x+=l+5;}}},128,80));
+const screens=codeTex.map(t=>new THREE.MeshStandardMaterial({map:t,emissive:CL(0xffffff),emissiveMap:t,emissiveIntensity:.75,roughness:.3}));
+function monitor(x,y,z,ry,p,k=0,w=1.5){const g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=ry;p.add(g);
+  mesh(RB(w+.1,w*.62,.08,.03),M(0x22252c),0,.72,0,g);mesh(new THREE.PlaneGeometry(w,w*.56),screens[k%3],0,.72,.05,g,false,false);
+  mesh(new THREE.BoxGeometry(.1,.5,.1),M(0x22252c),0,.25,-.05,g);mesh(RB(.5,.05,.35,.02),M(0x22252c),0,.03,0,g);}
+const rgb=M(0x22252c,{emissive:0x7c5cc4,emissiveIntensity:.6});
+function chair(x,z,ry,c=0x2b2e36,p=scene){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;p.add(g);
+  mesh(RB(1.1,.22,1.1,.1),M(c),0,.95,0,g);mesh(RB(1.05,1.5,.2,.1),M(c),0,1.75,-.5,g);mesh(RB(.8,.25,.12,.06),M(0xd8382f),0,2.3,-.52,g,false);
+  mesh(new THREE.CylinderGeometry(.07,.07,.8,8),deskLeg,0,.5,0,g);
   for(let i=0;i<5;i++){const a=i/5*Math.PI*2;const l=mesh(new THREE.BoxGeometry(.08,.06,.6),deskLeg,Math.sin(a)*.28,.1,Math.cos(a)*.28,g,false);l.rotation.y=a;}return g;}
+let screenK=0;
 function desk(x,z,ry,o={}){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;scene.add(g);
-  mesh(RB(3.4,.14,1.8,.06),deskTop,0,1.5,0,g);[[-1.55,-.75],[1.55,-.75],[-1.55,.75],[1.55,.75]].forEach(([a,b])=>mesh(new THREE.BoxGeometry(.1,1.45,.1),deskLeg,a,.73,b,g,false));
-  monitor(-.3,1.57,-.35,0,g);if(o.mug!==false)mesh(new THREE.CylinderGeometry(.13,.11,.28,12),M(o.mug||0xd8382f),1.1,1.71,.2,g,false);
-  if(o.papers)for(let i=0;i<3;i++)mesh(RB(.7,.04,.9,.02),M(0xffffff),-1.2,1.6+i*.05,.3,g,false).rotation.y=i*.15;
-  if(o.plant){mesh(new THREE.CylinderGeometry(.18,.14,.3,10),M(0xc9b79c),1.2,1.72,-.5,g);mesh(new THREE.IcosahedronGeometry(.3,1),M(0x5d9a6c),1.2,2.05,-.5,g);}
-  chair(0,1.4,Math.PI,o.chair);return g;}
+  mesh(RB(3.4,.14,1.8,.06),deskTop,0,1.5,0,g);[-1.55,1.55].forEach(a=>mesh(RB(.14,1.45,1.6,.05),M(0x5f6672),a,.73,0,g,false));
+  monitor(-.8,1.57,-.4,.12,g,screenK++,1.3);monitor(.8,1.57,-.4,-.12,g,screenK++,1.3);
+  mesh(RB(1.2,.06,.4,.03),rgb,0,1.6,.3,g,false);mesh(RB(.3,.05,.4,.1),M(0x22252c),.95,1.6,.35,g,false);
+  if(o.mug)mesh(new THREE.CylinderGeometry(.13,.11,.28,12),M(o.mug),1.35,1.71,.1,g,false);
+  if(o.plant){mesh(new THREE.CylinderGeometry(.16,.13,.28,10),M(0xc9b79c),-1.4,1.71,-.5,g);mesh(new THREE.IcosahedronGeometry(.28,1),M(0x5d9a6c),-1.4,2.02,-.5,g);}
+  if(o.figure)mesh(new THREE.SphereGeometry(.16,10,8),M(o.figure),-1.35,1.75,.25,g,false);
+  if(!o.noChair)chair(0,1.4,Math.PI,o.chair||0x2b2e36,g);return g;}
 function plant(x,z,s=1){const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(s);scene.add(g);
   mesh(new THREE.CylinderGeometry(.55,.42,1,14),M(0xe3ddd2),0,.5,0,g);for(let i=0;i<6;i++){const l=mesh(new THREE.SphereGeometry(.5,10,8),M(i%2?0x4f8f5f:0x6aaa76),Math.sin(i)*.35,1.4+i*.18,Math.cos(i*1.7)*.35,g);l.scale.set(.8,1.4,.8);}}
-// open desk area: two clusters of 4 facing each other
-const DESKS=[];
-[[-12,6],[-4,6],[4,6],[-12,12.5],[-4,12.5]].forEach(([x,z],i)=>{DESKS.push(desk(x,z-1.3,Math.PI,{mug:[0xd8382f,0x2f6fd6,0xf2b544,0x3f9a6e,0x8a5ab0][i],papers:i%2===0,plant:i===1}));desk(x,z+1.3,0,{mug:false,papers:i%2===1});
-  mesh(RB(3.4,.7,.08,.03),M(0x9fb7c9),x,1.9,z,scene,false);});
-// my desk is the one at (-12,4.7) facing the window; nameplate
-sign('내 자리','#2f6fd6',-12,2.6,4.2,1.4);
-// part leader desk (head of the cluster)
-desk(10,9,-Math.PI/2,{mug:0x2b2e38,papers:true,plant:true});
-// CEO office
-{desk(0,-18,Math.PI,{mug:0x7a2a6b,papers:true});mesh(RB(4.5,.2,2.2,.08),M(0x6b4a34),0,1.52,-18,scene);
-  mesh(RB(5,1.1,1.6,.4),M(0x8a3b3b),-5,.55,-21.5);mesh(RB(5,1.4,.5,.2),M(0x8a3b3b),-5,1.2,-22.4);
-  plant(5.5,-22,1.1);mesh(RB(3.6,2.4,.2,.08),M(0x6b4a34),3,2.8,-23.6);mesh(new THREE.PlaneGeometry(3.2,2),M(0x9fc3a5),3,2.8,-23.48,scene,false,false);}
-// meeting room
-{mesh(RB(8,.2,4,.9),M(0xf6f1e8),21,1.5,-15);mesh(new THREE.CylinderGeometry(.25,.4,1.4,10),deskLeg,21,.7,-15);
+// my row: hoodie senior (left) · me · glasses senior (right)
+const ROW_Z=4;
+desk(-4,ROW_Z,0,{mug:0x1e1f24,figure:0xd8382f});desk(0,ROW_Z,0,{mug:0x2f6fd6,plant:true});desk(4,ROW_Z,0,{mug:0x6f6b3c,figure:0x3f9a6e});
+sign('내 자리','#2f6fd6',0,3.1,ROW_Z-.75,1.4);
+desk(-12,ROW_Z,0,{mug:0xf2b544,plant:true,chair:0x3b4458});sign('팀장','#3b4458',-12,3.1,ROW_Z-.75,1.4);
+[-12,-4,4].forEach((x,i)=>desk(x,-3,0,{mug:[0xd8382f,0x3f9a6e,0xf2b544][i],plant:i===1}));
+// the three friends' row near the front
+const GIRLS_Z=14;
+desk(-16,GIRLS_Z,0,{mug:0xff9ad5,plant:true});desk(-12,GIRLS_Z,0,{mug:0xd8382f,figure:0xf2b544});desk(-8,GIRLS_Z,0,{mug:0x1e1f24});
+// branch manager's office
+{const d=desk(0,-18,Math.PI,{mug:0x7a2a6b,noChair:true});chair(0,-19.4,0,0x5a2a2a);mesh(RB(4.6,.2,2.2,.08),M(0x6b4a34),0,1.52,-18);
+  mesh(RB(5,1.1,1.6,.4),M(0x8a3b3b),-5,.55,-21.5);mesh(RB(5,1.4,.5,.2),M(0x8a3b3b),-5,1.2,-22.4);plant(5.5,-22,1.1);}
+// meeting room: big table + TV dashboard
+{mesh(RB(8,.2,4,.9),deskTop,21,1.5,-15);mesh(new THREE.CylinderGeometry(.25,.4,1.4,10),deskLeg,21,.7,-15);
   [-2.7,0,2.7].forEach(dx=>{chair(21+dx,-12.4,Math.PI,0x2f6fd6);chair(21+dx,-17.6,0,0x2f6fd6);});
-  mesh(RB(6,3,.2,.1),M(0xffffff),21,2.8,-23.6);
-  const wb=canvasTex((g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.strokeStyle='#2f6fd6';g.lineWidth=5;g.beginPath();g.moveTo(20,h-30);g.lineTo(80,h-60);g.lineTo(140,h-45);g.lineTo(230,h-100);g.stroke();
-    g.fillStyle='#d8382f';g.font='30px Jua,sans-serif';g.fillText('12월 배포 일정',20,40);},256,128);
-  mesh(new THREE.PlaneGeometry(5.6,2.6),new THREE.MeshStandardMaterial({map:wb}),21,2.8,-23.48,scene,false,false);}
-// HR
-{desk(-19,-15,0,{mug:0x3f9a6e,papers:true,plant:true});mesh(RB(1.4,3.2,4,.1),M(0xb9c7d6),-28.6,1.6,-15);
-  for(let i=0;i<3;i++)mesh(RB(1.5,.08,4,.02),M(0x8fa1b4),-28.6,.8+i*1,-15,scene,false);
-  for(let i=0;i<9;i++)mesh(RB(.25,.8,.6,.03),M([0xd8382f,0x2f6fd6,0xf2b544][i%3]),-28.3,1.2+Math.floor(i/3),-16.5+(i%3)*1.4,scene,false);
-  mesh(RB(1.4,1.1,1,.1),M(0xe0e3e8),-24.5,.55,-21);mesh(RB(1.2,.15,.8,.05),M(0x3b3f4c),-24.5,1.15,-21);}
-// pantry
+  const dash=canvasTex((g,w,h)=>{g.fillStyle='#111826';g.fillRect(0,0,w,h);g.strokeStyle='#7fd4ff';g.lineWidth=4;g.beginPath();g.moveTo(10,h-20);for(let x=10;x<w/2;x+=12)g.lineTo(x,h-20-Math.random()*60-x*.2);g.stroke();
+    for(let i=0;i<6;i++){g.fillStyle=['#8fe0a4','#f2b544','#ff7aa8'][i%3];g.fillRect(w/2+10+i*20,h-20-(20+Math.random()*60),14,999);}g.fillStyle='#e8eaf0';g.font='18px Jua,sans-serif';g.fillText('DAU · 배포 현황',10,24);},256,144);
+  mesh(RB(6.4,3.8,.2,.08),M(0x22252c),21,2.9,-23.6);mesh(new THREE.PlaneGeometry(6,3.4),new THREE.MeshStandardMaterial({map:dash,emissive:CL(0xffffff),emissiveMap:dash,emissiveIntensity:.8}),21,2.9,-23.48,scene,false,false);}
+// server room with blinking racks
+const ledA=M(0x1e1f24,{emissive:0x4dff9a,emissiveIntensity:1}),ledB=M(0x1e1f24,{emissive:0x5ab8ff,emissiveIntensity:1});
+for(let i=0;i<3;i++){const x=-27+i*3.6,z=-19;mesh(RB(2.4,4.4,2,.1),M(0x22252c,{metalness:.4,roughness:.4}),x,2.2,z);
+  for(let r=0;r<8;r++){mesh(new THREE.BoxGeometry(2.1,.06,.05),M(0x3b3f4c),x,.6+r*.45,z+1.02,scene,false,false);for(let k=0;k<3;k++)mesh(new THREE.BoxGeometry(.1,.1,.06),(r+k+i)%2?ledA:ledB,x-.8+k*.25,.75+r*.45,z+1.03,scene,false,false);}}
+mesh(RB(1.6,.2,1,.06),M(0x22252c),-19,1.4,-14);monitor(-19,1.5,-14.2,0,scene,1,1.2);
+// kanban board + neon on the left wall
+{const kb=canvasTex((g,w,h)=>{g.fillStyle='#ffffff';g.fillRect(0,0,w,h);g.fillStyle='#2d2a26';g.font='22px Jua,sans-serif';['TO DO','DOING','DONE'].forEach((t,i)=>{g.fillText(t,14+i*w/3,28);g.fillRect(i*w/3,36,w/3-4,2);});
+  const cs=['#ffe27a','#ff9ad5','#9fd8ff','#b8f2b0'];for(let i=0;i<14;i++){const c=i%3,r=Math.floor(i/3);g.fillStyle=cs[(i*7)%4];g.fillRect(10+c*w/3+(i%2)*8,46+r*30,w/3-30,24);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(16+c*w/3+(i%2)*8,54+r*30,w/3-50,3);g.fillRect(16+c*w/3+(i%2)*8,61+r*30,w/3-70,3);}},384,200);
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(7,3.6),new THREE.MeshStandardMaterial({map:kb,roughness:.8}));m.position.set(-FX+.05,2.8,2);m.rotation.y=Math.PI/2;scene.add(m);
+  const neon=canvasTex((g,w,h)=>{g.fillStyle='rgba(0,0,0,0)';g.clearRect(0,0,w,h);g.font='54px Jua,sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor='#ff4fd8';g.shadowBlur=18;g.fillStyle='#ffd1f5';g.fillText('</> BUILD · SHIP',w/2,h/2);},420,96);
+  const n=new THREE.Mesh(new THREE.PlaneGeometry(6,1.4),new THREE.MeshBasicMaterial({map:neon,transparent:true}));n.position.set(-FX+.06,4.4,9);n.rotation.y=Math.PI/2;scene.add(n);}
+// phone booth pod + beanbags + logo
+{const x=12,z=19;mesh(RB(3,4.2,3,.3),M(0x3f9a6e),x,2.1,z);mesh(RB(2.4,3.4,.1,.1),new THREE.MeshStandardMaterial({color:CL(0xcfe8f5),transparent:true,opacity:.45,roughness:.05}),x,2.1,z+1.52,scene,false,false);
+  mesh(RB(1.8,.8,1,.2),M(0xf2b544),x,.6,z-.6);sign('폰부스','#2d2a26',x,4.6,z+1.56,1.6);}
+[[24,18,0xff9ad5],[27,15,0x7fd4ff],[27.5,19.5,0xf2b544]].forEach(([x,z,c])=>{const b=mesh(new THREE.SphereGeometry(1,16,12),M(c,{roughness:.9}),x,.65,z);b.scale.set(1.1,.65,1.1);});
+sign('R&D LAB','#1e2a3a',-14,4.6,-FZ+.3,4.4);
+// pantry: kept right where it was
 {mesh(RB(10,1.6,1.6,.1),M(0xf3efe7),20,.8,10);mesh(RB(10.2,.14,1.8,.05),M(0x8f8a82),20,1.67,10);
   mesh(RB(1.4,1.2,1,.15),M(0x2b2e36),17,2.35,10);mesh(new THREE.CylinderGeometry(.14,.12,.3,10),M(0xffffff),17,1.9,10.6,scene,false);
   mesh(RB(1.8,3.6,1.6,.2),M(0xe8eaee),26,1.8,10);mesh(new THREE.BoxGeometry(.06,1,.06),M(0x8f949c),25.3,2.6,10.85,scene,false);
   mesh(new THREE.CylinderGeometry(.4,.4,1.6,14),M(0xcfe8f5,{transparent:true,opacity:.8}),23,2.5,10);mesh(RB(.9,1.7,.9,.1),M(0xf3efe7),23,.85,10);
-  mesh(new THREE.CylinderGeometry(1.1,1.1,.12,20),M(0xf6f1e8),18,1.4,16);mesh(new THREE.CylinderGeometry(.1,.1,1.4,8),deskLeg,18,.7,16);
-  [[16.4,16],[19.6,16]].forEach(([x,z])=>{mesh(new THREE.CylinderGeometry(.45,.45,.14,14),M(0xf2b544),x,1,z);mesh(new THREE.CylinderGeometry(.06,.06,1,6),deskLeg,x,.5,z,scene,false);});}
-// lobby / entrance + misc
-mesh(RB(3.4,4.6,.4,.1),M(0x9aa3ad,{metalness:.5,roughness:.35}),-24,2.3,FZ-.3);mesh(new THREE.BoxGeometry(.05,4.4,.42),M(0x5f6672),-24,2.3,FZ-.3,scene,false);sign('엘리베이터','#5f6672',-24,5.1,FZ-.6,2.6);
-mesh(RB(1.4,1.6,1.1,.1),M(0xe8eaee),-27,.8,7);mesh(RB(1.2,.3,.9,.08),M(0x3b3f4c),-27,1.7,7);
-[[-28,-4],[28,1],[-6,18],[8,18],[28,20],[-28,20],[12,-21]].forEach(([x,z])=>plant(x,z,.9));
-// wall clock + team banner
-{const c=canvasTex((g,s)=>{g.fillStyle='#fff';g.beginPath();g.arc(s/2,s/2,s/2-4,0,7);g.fill();g.strokeStyle='#2d2a26';g.lineWidth=6;g.stroke();g.lineWidth=7;g.beginPath();g.moveTo(s/2,s/2);g.lineTo(s/2,s*.22);g.stroke();g.lineWidth=5;g.beginPath();g.moveTo(s/2,s/2);g.lineTo(s*.7,s*.6);g.stroke();},128);
-  const m=new THREE.Mesh(new THREE.CircleGeometry(.9,24),new THREE.MeshStandardMaterial({map:c}));m.position.set(-FX+.02,4.1,0);m.rotation.y=Math.PI/2;scene.add(m);}
-sign('개발2팀 화이팅!','#f2b544',-14,4.6,-FZ+.3,5);
-// clouds
+  for(let i=0;i<4;i++)mesh(new THREE.CylinderGeometry(.18,.18,.4,10),M([0xd8382f,0xf2b544,0x3f9a6e,0x2f6fd6][i]),19+i*.5,1.95,10.2,scene,false);
+  mesh(new THREE.CylinderGeometry(1.1,1.1,.12,20),deskTop,18,1.4,16);mesh(new THREE.CylinderGeometry(.1,.1,1.4,8),deskLeg,18,.7,16);
+  [[16.4,16],[19.6,16]].forEach(([x,z])=>{mesh(new THREE.CylinderGeometry(.45,.45,.14,14),M(0xf2b544),x,1,z);mesh(new THREE.CylinderGeometry(.06,.06,1,6),deskLeg,x,.5,z,scene,false);});
+  sign('탕비실','#c0392b',20,4.2,7.5,2.6);}
+[[-28,-4],[28,1],[2,18],[28,-2],[-28,20],[12,-21],[6,-8]].forEach(([x,z])=>plant(x,z,.9));
 const clouds=[];{const cm=M(0xffffff,{roughness:1}),pg=new THREE.IcosahedronGeometry(1,3);
   for(let i=0;i<10;i++){const g=new THREE.Group();for(let k=0;k<5;k++){const p=mesh(pg,cm,(k-2.5)*2.4,Math.sin(k)*.5,(k%2)*1.1,g,false,false);p.scale.setScalar(1.8+(k%3)*.6);}
-    const a=i/10*Math.PI*2,r=55+(i%3)*12;g.position.set(Math.cos(a)*r,-12+(i%4)*7,Math.sin(a)*r);scene.add(g);clouds.push([g,a,r]);}}
+    const a=i/10*Math.PI*2,r=58+(i%3)*12;g.position.set(Math.cos(a)*r,-16+(i%4)*9,Math.sin(a)*r);scene.add(g);clouds.push([g,a,r]);}}
 
 /* ================= people ================= */
-const skin=M(0xffdcc4,{roughness:.6}),black=basic(0x241a16),white=basic(0xffffff),blush=basic(0xff9aae,{transparent:true,opacity:.75});
+const skin=M(0xffdcc4,{roughness:.6}),white=basic(0xffffff),blush=basic(0xff9aae,{transparent:true,opacity:.75});
+const quiltTex=canvasTex((g,s)=>{g.fillStyle='#6f6b3c';g.fillRect(0,0,s,s);g.strokeStyle='rgba(40,38,20,.55)';g.lineWidth=2;
+  for(let i=-s;i<s*2;i+=16){g.beginPath();g.moveTo(i,0);g.lineTo(i+s,s);g.stroke();g.beginPath();g.moveTo(i,s);g.lineTo(i+s,0);g.stroke();}},128);quiltTex.repeat.set(3,2);
+const heartTex=canvasTex((g,s)=>{g.fillStyle='#e0383a';g.beginPath();const x=s/2,y=s*.3;g.moveTo(x,y+s*.12);
+  g.bezierCurveTo(x,y-s*.08,x-s*.42,y-s*.08,x-s*.42,y+s*.16);g.bezierCurveTo(x-s*.42,y+s*.4,x,y+s*.52,x,y+s*.62);
+  g.bezierCurveTo(x,y+s*.52,x+s*.42,y+s*.4,x+s*.42,y+s*.16);g.bezierCurveTo(x+s*.42,y-s*.08,x,y-s*.08,x,y+s*.12);g.fill();},64);
 function person(o){
-  const g=new THREE.Group();const top=M(o.top),pants=M(o.pants),hair=M(o.hair,{roughness:.5}),shoe=M(0x2b2b2e);
-  const legs=[];[-.17,.17].forEach(x=>{const p=new THREE.Group();p.position.set(x,.9,0);g.add(p);mesh(new THREE.CylinderGeometry(.14,.13,.75,10),pants,0,-.37,0,p);
-    const s=mesh(RB(.28,.18,.48,.08),shoe,0,-.78,.08,p);legs.push(p);});
-  const body=mesh(new THREE.CylinderGeometry(.42,.48,1.15,18),top,0,1.45,0,g);mesh(new THREE.SphereGeometry(.42,18,10,0,Math.PI*2,0,Math.PI/2),top,0,2.02,0,g).scale.y=.45;
-  mesh(new THREE.CylinderGeometry(.49,.49,.12,18),pants,0,.92,0,g);
-  mesh(new THREE.CylinderGeometry(.16,.18,.2,12),skin,0,2.18,0,g);
+  const g=new THREE.Group();const top=o.quilt?new THREE.MeshStandardMaterial({map:quiltTex,roughness:.85}):M(o.top),pants=M(o.pants),hair=M(o.hair,{roughness:.45}),shoe=M(0x2b2b2e);
+  const W=o.wide||1;
+  const legs=[];[-.17*W,.17*W].forEach(x=>{const p=new THREE.Group();p.position.set(x,.9,0);g.add(p);mesh(new THREE.CylinderGeometry(.14*W,.13*W,.75,10),pants,0,-.37,0,p);
+    mesh(RB(.28,.18,.48,.08),shoe,0,-.78,.08,p);legs.push(p);});
+  const body=mesh(new THREE.CylinderGeometry(.42,.5,1.15,18),top,0,1.45,0,g);body.scale.set(W,1,W*.95);
+  const sh=mesh(new THREE.SphereGeometry(.42,18,10,0,Math.PI*2,0,Math.PI/2),top,0,2.02,0,g);sh.scale.set(W,.45,W*.95);
+  if(W>1.1){const b=mesh(new THREE.SphereGeometry(.45,16,12),top,0,1.3,.12,g);b.scale.set(W*.95,.9,.8);}
+  mesh(new THREE.CylinderGeometry(.5*W,.5*W,.12,18),pants,0,.92,0,g);mesh(new THREE.CylinderGeometry(.16,.18,.2,12),skin,0,2.18,0,g);
   if(o.tie){mesh(new THREE.BoxGeometry(.3,.12,.06),M(0xffffff),0,2.0,.4,g,false);const t=mesh(new THREE.ConeGeometry(.1,.7,4),M(o.tie),0,1.62,.44,g,false);t.rotation.x=Math.PI;}
-  const arms=[];[-.53,.53].forEach(x=>{const p=new THREE.Group();p.position.set(x,2.0,0);g.add(p);mesh(new THREE.CylinderGeometry(.12,.13,.8,10),top,0,-.4,0,p);mesh(new THREE.SphereGeometry(.13,10,8),skin,0,-.85,0,p);arms.push(p);});
+  if(o.quilt){mesh(new THREE.TorusGeometry(.26,.07,8,18),M(0x5a5732),0,2.12,0,g,false).rotation.x=Math.PI/2;[1.85,1.55,1.25].forEach(y=>mesh(new THREE.SphereGeometry(.04,6,6),M(0x2b2b20),0,y,.47,g,false));}
+  if(o.hood){const h=mesh(new THREE.TorusGeometry(.3,.13,10,20),top,0,2.15,-.2,g);h.rotation.x=Math.PI/2+.5;
+    [-.1,.1].forEach(x=>mesh(new THREE.CylinderGeometry(.02,.02,.5,6),M(0xe8e8e8),x,1.85,.5*W,g,false));mesh(RB(.6,.3,.08,.04),top,0,1.2,.5*W,g,false);}
+  if(o.heart){const d=new THREE.Mesh(new THREE.PlaneGeometry(.42,.42),new THREE.MeshStandardMaterial({map:heartTex,transparent:true,alphaTest:.3}));d.position.set(0,1.62,.47);g.add(d);}
+  const arms=[];[-.53*W,.53*W].forEach(x=>{const p=new THREE.Group();p.position.set(x,2.0,0);g.add(p);mesh(new THREE.CylinderGeometry(.12*W,.13*W,.8,10),top,0,-.4,0,p);mesh(new THREE.SphereGeometry(.13,10,8),skin,0,-.85,0,p);arms.push(p);});
   const head=new THREE.Group();head.position.y=2.85;g.add(head);const R=.66;
   mesh(new THREE.SphereGeometry(R,30,22),skin,0,0,0,head);
-  [-1,1].forEach(s=>{const e=mesh(new THREE.SphereGeometry(R*.15,14,10),M(0x3b2416,{roughness:.2}),s*R*.33,-R*.03,R*.9,head,false,false);e.scale.set(1,1.1,.4);
-    mesh(new THREE.SphereGeometry(R*.05,8,6),white,s*R*.33+R*.05,R*.04,R*.96,head,false,false);
+  [-1,1].forEach(s=>{
+    if(o.eyeSmile)mesh(new THREE.TorusGeometry(R*.13,R*.035,6,14,Math.PI),M(0x2b1a12),s*R*.33,-R*.06,R*.92,head,false,false);
+    else{const e=mesh(new THREE.SphereGeometry(R*.15,14,10),M(0x3b2416,{roughness:.2}),s*R*.33,-R*.03,R*.9,head,false,false);e.scale.set(1,1.1,.4);mesh(new THREE.SphereGeometry(R*.05,8,6),white,s*R*.33+R*.05,R*.04,R*.96,head,false,false);}
     const b=mesh(new THREE.BoxGeometry(R*.26,R*.05,R*.04),M(o.hair),s*R*.33,R*.26,R*.92,head,false,false);b.rotation.z=-s*.12;
     const c=mesh(new THREE.CircleGeometry(R*.14,16),blush,s*R*.55,-R*.3,R*.83,head,false,false);c.rotation.y=s*.6;
     mesh(new THREE.SphereGeometry(R*.17,10,10),skin,s*R*.98,-R*.08,0,head);});
   mesh(new THREE.SphereGeometry(R*.08,10,8),M(0xf0956f),0,-R*.16,R*.99,head,false,false);
   const mouth=mesh(new THREE.TorusGeometry(R*.12,R*.025,6,16,Math.PI),M(0x5a2a1e),0,-R*.36,R*.93,head,false,false);mouth.rotation.z=Math.PI;
-  if(o.glasses){[-1,1].forEach(s=>mesh(new THREE.TorusGeometry(R*.2,R*.025,8,20),M(0x2b2b2e,{metalness:.5}),s*R*.33,-R*.03,R*.95,head,false,false));mesh(new THREE.BoxGeometry(R*.25,R*.03,R*.03),M(0x2b2b2e),0,-R*.0,R*.97,head,false,false);}
-  const st=o.hairStyle;
-  if(st!=='bald'){const cap=mesh(new THREE.SphereGeometry(R*1.05,26,16,0,Math.PI*2,0,Math.PI*(st==='long'||st==='ponytail'?.62:.56)),hair,0,0,-.03,head);cap.rotation.x=-.3;}
-  else{[-1,1].forEach(s=>{const h=mesh(new THREE.SphereGeometry(.25,10,8),hair,s*R*.9,.05,-.15,head);h.scale.set(.6,1,1.2);});}
-  if(st==='short'||st==='side'||st==='part')[-.3,-.1,.1,.3].forEach((x,i)=>{const f=mesh(new THREE.SphereGeometry(.15,10,8),hair,x+(st==='side'?.08:0),.36-(i%2)*.03+(st==='part'&&x<0?.05:0),R*.82,head);f.scale.set(1.1,.6,.6);});
-  if(st==='long'){const b=mesh(new THREE.SphereGeometry(R,22,16),hair,0,-.4,-.25,head);b.scale.set(1.05,1.3,.7);[-1,1].forEach(s=>{const l=mesh(new THREE.SphereGeometry(.2,10,8),hair,s*R*.9,-.5,.1,head);l.scale.set(.8,2.2,.8);});
-    [-.3,-.1,.1,.3].forEach((x,i)=>{const f=mesh(new THREE.SphereGeometry(.15,10,8),hair,x,.36-(i%2)*.03,R*.82,head);f.scale.set(1.1,.6,.6);});}
-  if(st==='ponytail'){const p=mesh(new THREE.SphereGeometry(.28,12,10),hair,0,.1,-R*1.05,head);p.scale.set(.9,1.6,.9);p.position.y=-.2;mesh(new THREE.TorusGeometry(.14,.05,6,12),M(0xd8382f),0,.15,-R*.98,head,false);
-    [-.3,-.1,.1,.3].forEach((x,i)=>{const f=mesh(new THREE.SphereGeometry(.15,10,8),hair,x,.36-(i%2)*.03,R*.82,head);f.scale.set(1.1,.6,.6);});}
-  g.userData={legs,arms,head};g.scale.setScalar(.85);scene.add(g);
-  const sh=mesh(new THREE.CircleGeometry(.7,20),basic(0x1a2236,{transparent:true,opacity:.22,depthWrite:false}),0,.03,0,g,false,false);sh.rotation.x=-Math.PI/2;
+  if(o.glasses){[-1,1].forEach(s=>mesh(new THREE.TorusGeometry(R*.2,R*.025,8,20),M(0x2b2b2e,{metalness:.5}),s*R*.33,-R*.03,R*.95,head,false,false));mesh(new THREE.BoxGeometry(R*.25,R*.03,R*.03),M(0x2b2b2e),0,0,R*.97,head,false,false);}
+  const st=o.hairStyle,long=['straight','medlong','wavy'].includes(st);
+  const cap=mesh(new THREE.SphereGeometry(R*1.05,26,16,0,Math.PI*2,0,Math.PI*(long?.62:.56)),hair,0,0,-.03,head);cap.rotation.x=-.3;
+  const bangs=(dx=0)=>[-.3,-.1,.1,.3].forEach((x,i)=>{const f=mesh(new THREE.SphereGeometry(.15,10,8),hair,x+dx,.36-(i%2)*.03,R*.82,head);f.scale.set(1.1,.6,.6);});
+  if(st==='short'||st==='part')bangs(st==='part'?-.05:0);if(st==='side')bangs(.08);
+  if(st==='straight'){bangs();const b=mesh(new THREE.SphereGeometry(R,22,16),hair,0,-.55,-.28,head);b.scale.set(1.05,1.65,.62);[-1,1].forEach(s=>{const l=mesh(new THREE.CylinderGeometry(.16,.13,1.5,10),hair,s*R*.86,-.7,.08,head);l.scale.z=.7;});}
+  if(st==='medlong'){bangs(.05);const b=mesh(new THREE.SphereGeometry(R,22,16),hair,0,-.42,-.26,head);b.scale.set(1.08,1.3,.66);[-1,1].forEach(s=>{const l=mesh(new THREE.SphereGeometry(.2,10,8),hair,s*R*.88,-.62,.06,head);l.scale.set(.8,2,.8);});}
+  if(st==='wavy'){bangs();for(let i=0;i<4;i++)[-1,0,1].forEach(c=>mesh(new THREE.SphereGeometry(.24,10,8),hair,c*.42+(i%2?.08:-.08),-.3-i*.26,-.32+Math.abs(c)*.1,head));
+    [-1,1].forEach(s=>{for(let i=0;i<4;i++)mesh(new THREE.SphereGeometry(.17,10,8),hair,s*(R*.88+(i%2?.06:0)),-.3-i*.22,.05,head);});}
+  if(o.cap){const c=mesh(new THREE.SphereGeometry(R*1.08,24,12,0,Math.PI*2,0,Math.PI*.42),M(o.cap),0,.1,-.02,head);c.rotation.x=-.12;
+    const v=mesh(RB(.9,.06,.6,.03),M(o.cap),0,.38,R*.95,head,false);v.rotation.x=.18;}
+  g.userData={legs,arms,head,scale:o.scale||.85};g.scale.setScalar(o.scale||.85);scene.add(g);
+  const sd=mesh(new THREE.CircleGeometry(.75*W,20),basic(0x1a2236,{transparent:true,opacity:.22,depthWrite:false}),0,.03,0,g,false,false);sd.rotation.x=-Math.PI/2;
   return g;
 }
-const hero=person(HERO);
-// the leave form in his hand
+const hero=person(CAST.me);hero.visible=false;
 const paper=mesh(RB(.5,.7,.03,.01),M(0xffffff),0,-.95,.18,hero.userData.arms[1],false);paper.rotation.x=-.3;
-{const t=canvasTex((g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#d8382f';g.font='22px Jua,sans-serif';g.fillText('연차',8,26);g.fillStyle='#aaa';for(let i=0;i<5;i++)g.fillRect(8,40+i*14,w-16,3);},64,96);
-  const f=new THREE.Mesh(new THREE.PlaneGeometry(.46,.66),new THREE.MeshBasicMaterial({map:t}));f.position.z=.02;paper.add(f);}
+const SEATS={s1:[4,ROW_Z+1.4,Math.PI],s2:[-4,ROW_Z+1.4,Math.PI],lead:[-12,ROW_Z+1.4,Math.PI],boss:[0,-19.4,0],shoong:[-16,GIRLS_Z+1.4,Math.PI],hee:[-12,GIRLS_Z+1.4,Math.PI],sun:[-8,GIRLS_Z+1.4,Math.PI]};
+const P={me:hero};const seatY=id=>.35*CAST[id].scale/.85;
+Object.entries(SEATS).forEach(([id,[x,z,r]])=>{const g=person(CAST[id]);g.position.set(x,seatY(id),z);g.rotation.y=r;g.userData.base=r;g.userData.seated=true;g.userData.legs.forEach(l=>l.rotation.x=-1.4);P[id]=g;});
+const MY_SEAT=new THREE.Vector3(0,seatY('me'),ROW_Z+1.4);
 
-// where each person stands / sits and the path the hero walks to reach them
-const SPOTS={
- kim:{at:[-12,8.7],face:Math.PI,path:[[-24,20],[-17,16],[-9.6,15.5],[-9.6,10.2]]},
- park:{at:[8.6,9],face:Math.PI/2,path:[[-9.6,10.2],[-7.5,9.3],[1,9.6],[7,11.2]]},
- lee:{at:[26,-9],face:-Math.PI/2,path:[[7,11.2],[7.5,2],[14,-3],[16,-5],[18,-8],[23,-8.5]]},
- choi:{at:[-19,-13.6],face:Math.PI,path:[[23,-8.5],[18,-8],[16,-5],[10,-3],[0,-2],[-10,-4],[-19,-10.4]]},
- jung:{at:[18.6,12.8],face:Math.PI*.15,path:[[-19,-10.4],[-10,-3],[0,-1],[10,0],[13.5,6],[13.5,13],[16.4,13.6]]},
- ceo:{at:[0,-19.4],face:0,path:[[16.4,13.6],[13.5,13],[13.5,6],[8,-2],[0,-8],[0,-11],[0,-15.3]]},
- home:{path:[[0,-15.3],[0,-11],[-4,-4],[-10,-1],[-12,1.5],[-12,2.2]]}
-};
-const NPC={};PEOPLE.forEach(p=>{const s=SPOTS[p.id];const g=person(p);g.position.set(s.at[0],0,s.at[1]);g.rotation.y=s.face;g.userData.base=s.face;NPC[p.id]=g;});
-// seated folks
-['kim','park','choi','ceo'].forEach(id=>{const g=NPC[id];g.userData.legs.forEach(l=>l.rotation.x=-1.4);g.position.y=.35;});
+/* ================= overlay ================= */
+const tags={};Object.keys(SEATS).forEach(id=>{const d=document.createElement('div');d.className='tag';d.textContent=CAST[id].name;overlay.appendChild(d);tags[id]=d;});
+const bubbles={};function bubbleFor(id){if(!bubbles[id]){const d=document.createElement('div');d.className='bub';d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=CAST[id].name;overlay.appendChild(d);bubbles[id]={el:d,text:'',t0:-99,hold:0};}return bubbles[id];}
+const stampEl=document.createElement('div');stampEl.className='stampfx';overlay.appendChild(stampEl);
+const popEl=document.createElement('div');popEl.className='tag pop';overlay.appendChild(popEl);
+const docTag=document.createElement('div');docTag.className='tag';overlay.appendChild(docTag);
+const boomEl=document.createElement('div');boomEl.className='boom';boomEl.textContent='쾅!!';overlay.appendChild(boomEl);
+const BOXES=['사수 주임님','팀장님','지사장님'];
+BOXES.forEach((r,i)=>{const b=document.createElement('button');b.type='button';b.className='box';b.id='box'+i;b.innerHTML='<span class="r"></span><span class="s"><i></i></span>';b.querySelector('.r').textContent=r;b.onclick=()=>go(i+2,true);$('#stamps').appendChild(b);});
 
-/* ================= overlay: labels, bubbles, stamps ================= */
-const tags=PEOPLE.map(p=>{const d=document.createElement('div');d.className='tag';d.textContent=p.name+' · '+p.role;overlay.appendChild(d);return d;});
-const bub=document.createElement('div');bub.className='bub';overlay.appendChild(bub);
-const stampEl=document.createElement('div');stampEl.className='stampfx';stampEl.textContent='승인';overlay.appendChild(stampEl);
-const stampsEl=$('#stamps');
-PEOPLE.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='box';b.id='box'+i;b.innerHTML='<span class="r"></span><span class="s"><i>승인</i></span>';b.querySelector('.r').textContent=p.role;b.setAttribute('aria-label',p.name+' 결재');b.onclick=()=>go(i,true);stampsEl.appendChild(b);});
-
-/* sizing */
 let W=1,H=1;
 function resize(){const wide=innerWidth>=760;const sh=sheet.getBoundingClientRect();H=wide?innerHeight:Math.max(240,innerHeight-sh.height+24);W=innerWidth;stage.style.height=H+'px';
   renderer.setSize(W,H);camera.aspect=W/H;camera.updateProjectionMatrix();const cf=$('#confetti');cf.width=W*devicePixelRatio;cf.height=H*devicePixelRatio;cf.style.width=W+'px';cf.style.height=H+'px';}
 new ResizeObserver(resize).observe(sheet);addEventListener('resize',resize);resize();
 
-/* ================= story engine ================= */
-// a step is: walk to the person → talk line by line → stamp
-const STEPS=SCENES.map((s,i)=>({...s,person:PEOPLE.find(p=>p.id===s.id),spot:SPOTS[s.id],idx:i}));
-STEPS.push({id:'home',title:'자리로 복귀',lines:FINALE,spot:SPOTS.home,person:null,idx:6});
-const st={i:0,phase:'walk',t:0,line:0,lineT:0,playing:true,done:new Set(),over:false};
-function poly(pts){const P=pts.map(p=>new THREE.Vector3(p[0],0,p[1]));const L=[0];for(let i=1;i<P.length;i++)L.push(L[i-1]+P[i].distanceTo(P[i-1]));return {P,L,len:L[L.length-1]};}
+/* ================= story ================= */
+const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+const say=(arr,chat)=>arr.map(([who,text,kind])=>({t:'say',who,text,think:kind==='think',dur:chat?1.9:(kind==='think'?2.3:2.6),chat}));
+const walk=(pts,speed=4.5)=>({t:'walk',pts:pts.map(p=>V3(p[0],p[1],p[2]))});
+const ELEV_G=[[LX,GY,FZ-.6],[LX,GY,LZ]],OFF_OUT=[[LX,0,LZ],[LX,0,FZ-1]];
+const STEPS=[
+ {key:'park',title:'지하주차장 도착',who:'B1 주차장',cam:'garage',
+  acts:()=>[{t:'drive'},{t:'show'},walk([[-14,GY,8.6],[-18,GY,14],[LX,GY,FZ-.6],[LX,GY,LZ]]),{t:'lift',up:true}]},
+ {key:'lift',title:'올라가는 엘리베이터 안',who:'속마음',cam:'lift',
+  acts:()=>[{t:'liftRide',dur:9.2},...say(SCRIPT.lift),{t:'liftWait'},walk([[LX,0,LZ],[LX,0,FZ-1],[-21,0,9],[-6,0,8.4],[0,0,7]])]},
+ {key:'s1',title:'자리에서 고민하다가…',who:'사수 주임님 · 옆자리 선배',cam:'row',
+  acts:()=>[{t:'sit'},...say(SCRIPT.ponder),{t:'face',id:'s1'},...say(SCRIPT.s1),{t:'stamp',box:0,text:'승인',at:'s1'}]},
+ {key:'lead',title:'팀장님께',who:'팀장님',cam:'lead',
+  acts:()=>[{t:'stand'},walk([[0,0,7],[-6,0,7.4],[-10,0,7.2]]),{t:'face',id:'lead'},...say(SCRIPT.lead),{t:'stamp',box:1,text:'승인',at:'lead'}]},
+ {key:'boss',title:'지사장님 결재',who:'지사장님 · 지사장실',cam:'boss',
+  acts:()=>[walk([[-10,0,7.2],[-6,0,7.4],[0,0,7]]),{t:'sit'},{t:'face',id:'desk'},...say(SCRIPT.boss),{t:'send',to:V3(0,2.4,-18),label:'반차 결재',pop:'결재 대기 중…'},{t:'choice'},{t:'bossResult'}]},
+ {key:'girls',title:'슝주 · 희주 · 선주에게 소식',who:'슝주 · 희주 · 선주',cam:'girls',
+  acts:()=>[{t:'stand'},walk([[0,0,7],[-3,0,9],[-3,0,18.4],[-12,0,18.4]]),{t:'face',id:'girls'},...(st.result==='no'?[{t:'mood',v:'angry'},...say(SCRIPT.girlsNo,true),{t:'boom'}]:[{t:'mood',v:'love'},...say(SCRIPT.girlsOk,true),{t:'confetti'}]),{t:'end'}]}
+];
+// where the hero is at the start of each step (so any step can be jumped to)
+const START={park:{pos:V3(40,GY,6),hidden:true,car:true},lift:{pos:V3(LX,GY,LZ),lift:GY},s1:{pos:V3(0,0,7)},lead:{pos:MY_SEAT.clone(),seated:true,yaw:Math.PI},boss:{pos:V3(-10,0,7.2)},girls:{pos:MY_SEAT.clone(),seated:true,yaw:Math.PI}};
+const st={i:0,q:[],a:null,at:0,playing:true,over:false,result:null,stamps:{},mood:null,seated:false,face:null,liftY:GY,liftT:null,doorOpen:1,carPos:V3(40,GY,6),carYaw:-Math.PI/2};
+const DRIVE=[V3(40,GY,6),V3(10,GY,5.5),V3(-10,GY,5),V3(-14,GY,6.5),V3(-17.4,GY,10)];
+function poly(P){const L=[0];for(let i=1;i<P.length;i++)L.push(L[i-1]+P[i].distanceTo(P[i-1]));return {P,L,len:L[L.length-1]};}
 function sample(path,t){const d=Math.min(Math.max(t,0),1)*path.len;let i=0;while(i<path.P.length-2&&path.L[i+1]<d)i++;const f=(d-path.L[i])/((path.L[i+1]-path.L[i])||1);
-  return {pos:path.P[i].clone().lerp(path.P[i+1],f),dir:path.P[i+1].clone().sub(path.P[i]).normalize()};}
-STEPS.forEach(s=>{s.path=poly(s.spot.path);s.walkDur=Math.max(2,s.path.len/4.5);});
-const LINE_T=2.6;
-function go(i,user){st.i=Math.max(0,Math.min(i,STEPS.length-1));st.phase='walk';st.t=0;st.line=0;st.lineT=0;
-  // stamps before this step count as done
-  st.done=new Set(STEPS.slice(0,st.i).filter(s=>s.person).map(s=>s.id));
-  if(st.over){st.over=false;$('#over').classList.remove('on');}camMode=null;stampEl.classList.remove('on');confettiOn=false;if(user)setPlay(true);render();}
-function setPlay(p){st.playing=p;$('#play').textContent=p?'일시정지':(st.i===STEPS.length-1&&st.phase==='end'?'처음부터':'재생');}
+  const dir=path.P[i+1].clone().sub(path.P[i]);dir.y=0;if(dir.lengthSq()>1e-6)dir.normalize();return {pos:path.P[i].clone().lerp(path.P[i+1],f),dir};}
+const drivePath=poly(DRIVE);
+function go(i,user){
+  st.i=Math.max(0,Math.min(i,STEPS.length-1));const s=STEPS[st.i];const S0=START[s.key];
+  st.stamps={};const order=['s1','lead','boss'];for(let k=0;k<3;k++)if(STEPS.findIndex(x=>x.key===order[k])<st.i)st.stamps[k]=k===2?(st.result==='no'?'반려':'승인'):'승인';
+  if(user&&st.i<=4)st.result=null;
+  hero.position.copy(S0.pos);hero.visible=!S0.hidden;st.seated=!!S0.seated;if(S0.yaw!=null)heroYaw=S0.yaw;st.face=null;
+  st.liftY=S0.lift!=null?S0.lift:(st.i>=1?0:GY);st.liftT=null;st.doorOpen=1;
+  if(S0.car){st.carPos.copy(DRIVE[0]);st.carYaw=-Math.PI/2;}else{st.carPos.copy(DRIVE[DRIVE.length-1]);st.carYaw=-Math.PI*.82;}
+  st.q=s.acts();st.a=null;st.mood=null;flying=null;docMesh.visible=false;
+  Object.values(bubbles).forEach(b=>b.t0=-99);stampEl.classList.remove('on');boomEl.classList.remove('on');confettiOn=false;$('#choice').hidden=true;
+  camKey=null;if(user)setPlay(true);next();render();
+}
+function next(){st.a=st.q.shift()||null;st.at=0;const a=st.a;if(!a){render();return;}
+  if(a.t==='walk'){a.path=poly([hero.position.clone()].concat(a.pts.slice(1)));a.dur=Math.max(.6,a.path.len/4.5);}
+  if(a.t==='say'){const b=bubbleFor(a.who);b.text=a.text;b.t0=simT;b.hold=a.chat?4.6:a.dur;b.el.className='bub'+(a.who==='me'?' me':'')+(a.think?' think':'');if(!a.chat)Object.entries(bubbles).forEach(([k,o])=>{if(k!==a.who)o.t0=-99;});}
+  if(a.t==='show'){hero.visible=true;hero.position.set(-15.6,GY,8.6);a.dur=.3;}
+  if(a.t==='lift'){st.doorOpen=1;a.dur=.6;}
+  if(a.t==='liftRide'){st.liftT={t0:simT,dur:a.dur};a.dur=0;}
+  if(a.t==='sit'){st.seated=true;hero.position.copy(MY_SEAT);a.dur=.4;}
+  if(a.t==='stand'){st.seated=false;hero.position.set(0,0,7);a.dur=.3;}
+  if(a.t==='face'){st.face=a.id;a.dur=.5;}
+  if(a.t==='stamp'){st.stamps[a.box]=a.text;stamp(a.text,a.at);a.dur=1.5;}
+  if(a.t==='send'){flying={from:V3(0,2.3,ROW_Z-.3),to:a.to};docMesh.visible=true;docTag.textContent=a.label;a.pop&&(popEl.textContent=a.pop);a.dur=2.2;}
+  if(a.t==='choice'){if(st.result){next();return;}$('#choice').hidden=false;a.dur=Infinity;}
+  if(a.t==='bossResult'){const ok=st.result!=='no';st.q.unshift(...say(ok?SCRIPT.bossOk:SCRIPT.bossNo));st.stamps[2]=ok?'승인':'반려';stamp(ok?'승인':'반려','boss');a.dur=1.5;}
+  if(a.t==='mood'){st.mood=a.v;a.dur=0;}
+  if(a.t==='boom'){boom();a.dur=2.4;}
+  if(a.t==='confetti'){burst();a.dur=1;}
+  if(a.t==='end'){a.dur=Infinity;setPlay(false);}
+  render();
+}
+function stamp(text,at){stampEl.textContent=text;stampEl.classList.toggle('no',text==='반려');stampEl.dataset.at=at;stampEl.classList.remove('on');void stampEl.offsetWidth;stampEl.classList.add('on');}
+function setPlay(p){st.playing=p;$('#play').textContent=p?'일시정지':(st.a&&st.a.t==='end'?'처음부터':'재생');}
 function render(){
   const s=STEPS[st.i];
-  PEOPLE.forEach((p,i)=>{const b=$('#box'+i);b.classList.toggle('done',st.done.has(p.id));b.classList.toggle('now',s.id===p.id);});
-  $('#sub').textContent='결재 '+st.done.size+' / 6';
-  $('#who').textContent=s.person?(s.person.name+' · '+s.person.role):'다시 내 자리';$('#title').textContent=s.title;
-  const ln=st.phase==='talk'||st.phase==='stamp'||st.phase==='end'?s.lines[Math.min(st.line,s.lines.length-1)]:null;
-  $('#line').textContent=st.phase==='walk'?(s.person?s.person.name+'에게 가는 중…':'자리로 돌아가는 중…'):ln?((ln[0]==='me'?HERO.name:s.person.name)+': '+ln[1]):'';
+  BOXES.forEach((b,i)=>{const el=$('#box'+i);const v=st.stamps[i];el.classList.toggle('done',!!v);el.classList.toggle('rej',v==='반려');el.querySelector('i').textContent=v||'';el.classList.toggle('now',i+2===st.i);});
+  const n=Object.values(st.stamps).filter(v=>v==='승인').length;$('#sub').textContent=st.stamps[2]==='반려'?'반려됨 💢':'결재 '+n+' / 3';
+  $('#who').textContent=s.who;$('#title').textContent=s.title;const a=st.a;
+  if(!a)return;
+  $('#line').textContent=a.t==='drive'?'주차하는 중… 🚗':a.t==='walk'?'걸어가는 중…':a.t==='liftRide'||a.t==='liftWait'?'올라가는 중… 🛗':a.t==='say'?((a.think?'(속마음) ':CAST[a.who].name+': ')+a.text):a.t==='send'?'결재 올리는 중… 📨':a.t==='choice'?'지사장님 결재 결과는?':$('#line').textContent;
 }
 $('#prev').onclick=()=>go(st.i-1,true);$('#next').onclick=()=>go(st.i+1,true);
-$('#play').onclick=()=>{if(!st.playing&&st.i===STEPS.length-1&&st.phase==='end'){go(0,true);return;}setPlay(!st.playing);};
-$('#over').onclick=()=>{st.over=!st.over;$('#over').classList.toggle('on',st.over);if(st.over)camFly(OV_T,OV_O);else camMode=null;};
-// tap the 3D view during a conversation to skip to the next line
-renderer.domElement.addEventListener('click',()=>{if(st.phase==='talk'){st.lineT=LINE_T;}});
+$('#play').onclick=()=>{if(!st.playing&&st.a&&st.a.t==='end'){go(0,true);return;}setPlay(!st.playing);};
+function choose(r){st.result=r;$('#choice').hidden=true;if(st.a&&st.a.t==='choice')next();setPlay(true);}
+$('#okBtn').onclick=()=>choose('ok');$('#noBtn').onclick=()=>choose('no');
+$('#other').onclick=()=>{const r=st.result==='no'?'ok':'no';go(4,true);st.result=r;};
+renderer.domElement.addEventListener('click',()=>{if(st.a&&st.a.t==='say')st.at=st.a.dur;});
+
+/* flying document */
+const docMesh=new THREE.Group();scene.add(docMesh);docMesh.visible=false;
+mesh(RB(1,.7,.06,.03),M(0xffffff),0,0,0,docMesh,false);{const f=mesh(new THREE.ConeGeometry(.5,.35,3),M(0xd8382f),0,.18,.04,docMesh,false);f.rotation.z=Math.PI;f.scale.z=.1;}
+let flying=null,popT=-99,popAt=null;
 
 /* camera */
-const OV_T=new THREE.Vector3(0,0,0),OV_O=new THREE.Vector3(55,95,110);
-let fly=null,camMode=null;camera.position.copy(OV_T).add(OV_O);controls.target.copy(OV_T);
+const OV_T=V3(0,-3,0),OV_O=V3(60,80,120);
+let fly=null,camKey=null;camera.position.copy(OV_T).add(OV_O);controls.target.copy(OV_T);
 function camFly(t,o){fly={t:0,fT:controls.target.clone(),fO:camera.position.clone().sub(controls.target),tT:t,tO:o};}
-const focus=new THREE.Vector3(-24,0,20);
+const focus=V3(20,GY,6);
+const CAMS={garage:{o:V3(.42,.16,.9),d:40},lift:{o:V3(.35,.12,.93),d:22},row:{t:V3(0,1.6,5.4),o:V3(.3,.62,.85),d:22},lead:{o:V3(.4,.6,.85),d:22},boss:{t:V3(0,1.5,-6),o:V3(.45,.75,.75),d:48},girls:{t:V3(-11,1.5,16),o:V3(.35,.6,.9),d:24}};
 
-/* confetti */
+/* effects */
 const cf=$('#confetti'),cx=cf.getContext('2d');let confettiOn=false,bits=[];
-function burst(){confettiOn=true;bits=Array.from({length:reduced?40:140},()=>({x:Math.random()*W,y:-20-Math.random()*H*.5,vx:(Math.random()-.5)*60,vy:60+Math.random()*120,r:Math.random()*6.28,vr:(Math.random()-.5)*8,c:['#d8382f','#2f6fd6','#f2b544','#3f9a6e','#ff9ad5'][Math.floor(Math.random()*5)]}));}
+function burst(){confettiOn=true;bits=Array.from({length:reduced?40:150},()=>({x:Math.random()*W,y:-20-Math.random()*H*.5,vx:(Math.random()-.5)*60,vy:60+Math.random()*120,r:Math.random()*6.28,vr:(Math.random()-.5)*8,c:['#d8382f','#2f6fd6','#f2b544','#3f9a6e','#ff9ad5'][Math.floor(Math.random()*5)]}));}
+const puffs=[];const puffGeo=new THREE.IcosahedronGeometry(1,2);let shake=0;
+function boom(){boomEl.classList.remove('on');void boomEl.offsetWidth;boomEl.classList.add('on');shake=1.4;
+  for(let i=0;i<26;i++){const m=new THREE.Mesh(puffGeo,new THREE.MeshStandardMaterial({color:CL(i%3?0x9a9a9a:0xf2a640),roughness:1,transparent:true,opacity:.9,emissive:CL(i%3?0x000000:0xff7a1a),emissiveIntensity:i%3?0:.8}));
+    const a=Math.random()*Math.PI*2,r=Math.random()*8;m.position.set(Math.cos(a)*r,1+Math.random()*3,-14+Math.sin(a)*r);m.userData={v:V3(Math.cos(a)*4,4+Math.random()*5,Math.sin(a)*4),t:0};m.scale.setScalar(.6);scene.add(m);puffs.push(m);}}
+const spriteFor=txt=>canvasTex((g,s)=>{g.font=(s*.75)+'px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,s/2,s/2+4);},64);
+const SPR={love:new THREE.SpriteMaterial({map:heartTex,transparent:true,depthWrite:false}),angry:new THREE.SpriteMaterial({map:spriteFor('💢'),transparent:true,depthWrite:false})};
+const floaties=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(SPR.love);sp.visible=false;sp.scale.setScalar(.8);scene.add(sp);floaties.push({sp,t:0});}
+let floatT=0;
 
 /* animation */
-const clock=new THREE.Clock();let phase=0;const tmp=new THREE.Vector3();let heroYaw=0;
-function animatePerson(g,walking,dt,talking){const u=g.userData;const sw=walking?Math.sin(phase)*.55:0;
-  if(!g.userData.seated){u.legs[0].rotation.x=sw;u.legs[1].rotation.x=-sw;}
-  u.arms[0].rotation.x=walking?-sw*.8:(talking?Math.sin(phase*1.7)*.25-.2:0);
-  u.head.rotation.z=talking?Math.sin(phase*2.2)*.06:0;u.head.rotation.x=talking?Math.sin(phase*3)*.05:0;}
-['kim','park','choi','ceo'].forEach(id=>NPC[id].userData.seated=true);
-function place(el,v,dy=0){tmp.copy(v).project(camera);if(tmp.z>1||Math.abs(tmp.x)>1.15||Math.abs(tmp.y)>1.15){el.style.display='none';return;}
-  el.style.display='';el.style.transform='translate('+((tmp.x+1)/2*W).toFixed(1)+'px,'+((1-tmp.y)/2*H+dy).toFixed(1)+'px) translate(-50%,-100%)';}
+const clock=new THREE.Clock();let phase=0,simT=0;const tmp=V3(0,0,0);let heroYaw=0;
+function pose(g,walking,talking){const u=g.userData;const sw=walking?Math.sin(phase)*.55:0;
+  if(!u.seated){u.legs[0].rotation.x=sw;u.legs[1].rotation.x=-sw;}else{u.legs[0].rotation.x=u.legs[1].rotation.x=-1.4;}
+  u.arms[0].rotation.x=walking?-sw*.8:(talking?Math.sin(phase*1.7)*.3-.3:0);
+  u.head.rotation.z=talking?Math.sin(phase*2.2)*.07:0;u.head.rotation.x=talking?Math.sin(phase*3)*.06:0;}
+function place(el,v,dy=0){tmp.copy(v).project(camera);if(tmp.z>1||Math.abs(tmp.x)>1.15||Math.abs(tmp.y)>1.15){el.style.display='none';return false;}
+  el.style.display='';el.style.transform='translate('+((tmp.x+1)/2*W).toFixed(1)+'px,'+((1-tmp.y)/2*H+dy).toFixed(1)+'px) translate(-50%,-100%)';return true;}
+function headPos(id){const g=P[id];return g.position.clone().setY(g.position.y+3.25*g.userData.scale/.85*(g.userData.seated?.9:1));}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function yawTo(cur,want,k){let d=want-cur;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return cur+d*k;}
 function tick(){
-  requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05),T=clock.elapsedTime;phase+=dt*8;
-  const s=STEPS[st.i];
-  if(st.playing&&!st.over){
-    if(st.phase==='walk'){st.t+=dt/s.walkDur;if(st.t>=1){st.t=1;st.phase='talk';st.line=0;st.lineT=0;render();}}
-    else if(st.phase==='talk'){st.lineT+=dt;if(st.lineT>=LINE_T){st.line++;st.lineT=0;if(st.line>=s.lines.length){st.line=s.lines.length-1;st.phase=s.person?'stamp':'end';st.lineT=0;
-        if(s.person){st.done.add(s.id);stampEl.classList.remove('on');void stampEl.offsetWidth;stampEl.classList.add('on');}else{burst();setPlay(false);}}render();}}
-    else if(st.phase==='stamp'){st.lineT+=dt;if(st.lineT>1.6){stampEl.classList.remove('on');go(st.i+1,false);}}
+  requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05);simT+=dt;const T=simT;phase+=dt*8;
+  const s=STEPS[st.i];let a=st.a;
+  if(st.playing&&a){st.at+=dt;
+    if(a.t==='drive'){const k=Math.min(1,st.at/4.2);const p=sample(drivePath,ease(k));st.carPos.copy(p.pos);if(p.dir.lengthSq())st.carYaw=yawTo(st.carYaw,Math.atan2(p.dir.x,p.dir.z)+(k>.8?Math.PI:0)*0,Math.min(1,dt*5));a.dur=4.4;}
+    if(a.t==='send'&&flying){const k=Math.min(1,st.at/1.8);const p=flying.from.clone().lerp(flying.to,k);p.y+=Math.sin(Math.PI*k)*6;docMesh.position.copy(p);docMesh.rotation.y=k*6;
+      if(k>=1){docMesh.visible=false;popT=T;popAt=flying.to.clone();flying=null;}}
+    if(a.t==='liftWait'){a.dur=st.liftT?Infinity:.4;}
+    if(st.at>=(a.dur||0))next();
+    if(!st.a&&st.playing){if(st.i<STEPS.length-1)go(st.i+1,false);else setPlay(false);}
   }
+  a=st.a||{t:'idle'};
+  // lift
+  if(st.liftT){const k=Math.min(1,(T-st.liftT.t0)/st.liftT.dur);st.doorOpen=Math.max(0,1-k*6);st.liftY=GY+(0-GY)*ease(Math.min(1,Math.max(0,(k-.12)/.82)));if(k>=1){st.liftT=null;st.doorOpen=0;}}
+  else if(a.t==='walk'||a.t==='idle'||st.i!==1)st.doorOpen=Math.min(1,st.doorOpen+dt*1.5);
+  lift.position.y=st.liftY;doors[0].position.x=-.75-st.doorOpen*.7;doors[1].position.x=.75+st.doorOpen*.7;
+  // car
+  heroCar.position.copy(st.carPos);heroCar.rotation.y=st.carYaw;
   // hero
-  const smp=sample(s.path,st.phase==='walk'?st.t:1);const walking=st.phase==='walk'&&st.playing&&!st.over;
-  hero.position.set(smp.pos.x,0,smp.pos.z);
-  let want=heroYaw;if(walking)want=Math.atan2(smp.dir.x,smp.dir.z);else if(s.person){const n=NPC[s.id].position;want=Math.atan2(n.x-hero.position.x,n.z-hero.position.z);}else want=Math.atan2(camera.position.x-hero.position.x,camera.position.z-hero.position.z);
-  let d=want-heroYaw;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;heroYaw+=d*Math.min(1,dt*7);hero.rotation.y=heroYaw;
-  hero.position.y=walking?Math.abs(Math.sin(phase))*.1:0;
-  const ln=s.lines[Math.min(st.line,s.lines.length-1)];const talking=st.phase==='talk';
-  animatePerson(hero,walking,dt,talking&&ln[0]==='me');
-  hero.userData.arms[1].rotation.x=walking?Math.sin(phase)*.4:-.9; // holds the form up while asking
-  PEOPLE.forEach(p=>{const g=NPC[p.id];const active=s.id===p.id&&st.phase!=='walk';
-    let want=g.userData.base;if(active){want=Math.atan2(hero.position.x-g.position.x,hero.position.z-g.position.z);}
-    let dd=want-g.rotation.y;while(dd>Math.PI)dd-=Math.PI*2;while(dd<-Math.PI)dd+=Math.PI*2;g.rotation.y+=dd*Math.min(1,dt*4);
-    animatePerson(g,false,dt,active&&talking&&ln[0]==='npc');if(!active)g.userData.head.rotation.y=Math.sin(T*.6+p.id.length)*.25;else g.userData.head.rotation.y=0;});
-  // camera: follow while walking, frame the pair while talking
-  if(!st.over){
-    let tgt=hero.position.clone();if(st.phase!=='walk'&&s.person)tgt.lerp(NPC[s.id].position,.5);tgt.y=1.5;
-    focus.lerp(tgt,1-Math.exp(-dt*5));
-    const mode=st.phase==='walk'?'walk':'talk';
-    if(camMode!==mode){camMode=mode;const dist=mode==='walk'?44:30;const off=new THREE.Vector3(.55,.72,.85).normalize().multiplyScalar(dist);camFly(null,off);}
-  }
-  if(fly){fly.t=Math.min(1,fly.t+dt/1.2);const e=fly.t<.5?2*fly.t*fly.t:1-Math.pow(-2*fly.t+2,2)/2;const nt=fly.fT.clone().lerp(fly.tT||focus,e),no=fly.fO.clone().lerp(fly.tO,e);
-    controls.target.copy(nt);camera.position.copy(nt).add(no);if(fly.t>=1)fly=null;}
-  else if(!st.over){tmp.copy(focus).sub(controls.target);controls.target.add(tmp);camera.position.add(tmp);}
+  let walking=false;
+  if(a.t==='walk'){const k=Math.min(1,st.at/a.dur);const p=sample(a.path,k);hero.position.copy(p.pos);walking=st.playing;if(p.dir.lengthSq())heroYaw=yawTo(heroYaw,Math.atan2(p.dir.x,p.dir.z),Math.min(1,dt*8));}
+  if(st.i===1&&(a.t==='liftRide'||a.t==='liftWait'||(a.t==='say'&&!walking))){hero.position.set(LX,st.liftY,LZ);heroYaw=yawTo(heroYaw,Math.PI*.15,dt*3);}
+  hero.userData.seated=st.seated;
+  if(st.seated){hero.position.y=seatY('me');}
+  if(!walking&&st.face){let want=heroYaw;if(st.face==='desk')want=Math.PI;else if(st.face==='girls')want=Math.PI;else if(P[st.face])want=Math.atan2(P[st.face].position.x-hero.position.x,P[st.face].position.z-hero.position.z);heroYaw=yawTo(heroYaw,want,Math.min(1,dt*6));}
+  hero.rotation.y=heroYaw;if(walking)hero.position.y+=Math.abs(Math.sin(phase))*.1;
+  const talkWho=a.t==='say'?a.who:null;
+  pose(hero,walking,talkWho==='me'&&!a.think);hero.userData.arms[1].rotation.x=walking?Math.sin(phase)*.4:-.9;
+  if(a.t==='say'&&a.think&&talkWho==='me')hero.userData.head.rotation.z=Math.sin(T*1.3)*.12;
+  Object.keys(SEATS).forEach(id=>{const g=P[id];const engaged=(st.face===id||(st.face==='girls'&&['shoong','hee','sun'].includes(id))||(st.i===2&&st.face==='s1'&&id==='s2'))&&a.t!=='walk';
+    let w=g.userData.base;if(engaged)w=Math.atan2(hero.position.x-g.position.x,hero.position.z-g.position.z);
+    if(id==='s2'&&talkWho==='s2')w=Math.atan2(P.s1.position.x-g.position.x,P.s1.position.z-g.position.z)*.3+w*.7;
+    g.rotation.y=yawTo(g.rotation.y,w,Math.min(1,dt*4));pose(g,false,talkWho===id);
+    g.position.y=seatY(id)+(st.mood==='angry'&&engaged?Math.abs(Math.sin(T*9+id.length))*.35:st.mood==='love'&&engaged&&talkWho===id?Math.abs(Math.sin(T*6))*.15:0);
+    g.userData.head.rotation.y=engaged?0:Math.sin(T*.6+id.length)*.2;});
+  if(st.mood&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shoong','hee','sun'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
+  floaties.forEach(f=>{if(!f.sp.visible)return;f.t+=dt;f.sp.position.y+=dt*1.6;f.sp.scale.setScalar(.8*(1-f.t/2)+.2);if(f.t>1.8)f.sp.visible=false;});
+  for(let i=puffs.length-1;i>=0;i--){const m=puffs[i],u=m.userData;u.t+=dt;m.position.addScaledVector(u.v,dt);u.v.multiplyScalar(.96);m.scale.setScalar(.6+u.t*2.2);m.material.opacity=Math.max(0,.9-u.t*.45);if(u.t>2.2){scene.remove(m);puffs.splice(i,1);}}
+  ledA.emissiveIntensity=.4+.6*(Math.sin(T*7)>0?1:0);ledB.emissiveIntensity=.4+.6*(Math.sin(T*5+1)>0?1:0);
+  // camera
+  if(!st.over){const c=CAMS[s.cam];let tgt;
+    if(s.cam==='garage')tgt=(hero.visible?hero.position:st.carPos).clone().setY(GY+1.5);
+    else if(s.cam==='lift')tgt=V3(LX,st.liftY+2,LZ);
+    else if(s.cam==='lead')tgt=hero.position.clone().lerp(P.lead.position,.5).setY(1.5);
+    else tgt=c.t.clone();
+    if(a.t==='walk'&&!['garage','lift'].includes(s.cam)){tgt=hero.position.clone().setY(1.5);}
+    focus.lerp(tgt,1-Math.exp(-dt*4));
+    const key=s.cam+(a.t==='walk'&&!['garage','lift'].includes(s.cam)?'w':'');
+    if(camKey!==key){camKey=key;const o=(key.endsWith('w')?V3(.5,.72,.85).normalize().multiplyScalar(38):c.o.clone().normalize().multiplyScalar(c.d));camFly(null,o);}}
+  if(fly){fly.t=Math.min(1,fly.t+dt/1.2);const e=ease(fly.t);const nt=fly.fT.clone().lerp(fly.tT||focus,e),no=fly.fO.clone().lerp(fly.tO,e);controls.target.copy(nt);camera.position.copy(nt).add(no);if(fly.t>=1)fly=null;}
+  else{tmp.copy(focus).sub(controls.target);controls.target.add(tmp);camera.position.add(tmp);}
   controls.update();
-  clouds.forEach(([g,a,r],i)=>{const na=a+T*.01*(1+i%3*.3);g.position.x=Math.cos(na)*r;g.position.z=Math.sin(na)*r;});
+  if(shake>0){shake=Math.max(0,shake-dt);const k=shake*.6;camera.position.x+=(Math.random()-.5)*k;camera.position.y+=(Math.random()-.5)*k;}
+  clouds.forEach(([g,a2,r],i)=>{const na=a2+T*.01*(1+i%3*.3);g.position.x=Math.cos(na)*r;g.position.z=Math.sin(na)*r;});
   renderer.render(scene,camera);
   // overlay
-  PEOPLE.forEach((p,i)=>{const g=NPC[p.id];const show=st.over||s.id===p.id||st.phase==='walk';if(!show||(s.id===p.id&&talking)){tags[i].style.display='none';return;}place(tags[i],g.position.clone().setY(g.position.y+3.2));});
-  if((talking||st.phase==='end')&&!st.over){const speaker=ln[0]==='me'?hero:NPC[s.id];bub.className='bub '+(ln[0]==='me'?'me':'npc');
-    const name=ln[0]==='me'?HERO.name:s.person.name;const n=Math.min(ln[1].length,Math.floor((st.phase==='end'?99:st.lineT)*28));
-    bub.innerHTML='<b></b><span></span>';bub.querySelector('b').textContent=name;bub.querySelector('span').textContent=ln[1].slice(0,n)||'…';
-    bub.style.opacity=1;place(bub,speaker.position.clone().setY(speaker.position.y+3.1),-8);}
-  else bub.style.opacity=0;
-  if(s.person&&st.phase==='stamp')place(stampEl,NPC[s.id].position.clone().setY(1.6));
-  // confetti
+  Object.keys(SEATS).forEach(id=>{const b=bubbles[id];const speaking=b&&T-b.t0<b.hold;const near=s.cam!=='garage'&&s.cam!=='lift';if(near&&!speaking)place(tags[id],headPos(id).add(tmp.set(0,.2,0)));else tags[id].style.display='none';});
+  Object.entries(bubbles).forEach(([id,b])=>{const age=T-b.t0;if(age>b.hold){b.el.style.opacity=0;return;}
+    const n=Math.min(b.text.length,Math.floor(age*28));b.el.querySelector('span').textContent=b.text.slice(0,n)||'…';b.el.style.opacity=1;
+    place(b.el,headPos(id).add(tmp.set(0,.35,0)),-6);b.el.style.zIndex=String(Math.round(1000-age*10));});
+  if(flying)place(docTag,docMesh.position.clone().add(tmp.set(0,1,0)));else docTag.style.display='none';
+  if(T-popT<1.8&&popAt){popEl.style.opacity=1;place(popEl,popAt.clone().add(tmp.set(0,1.4+(T-popT)*.6,0)));}else popEl.style.opacity=0;
+  if(stampEl.classList.contains('on'))place(stampEl,headPos(stampEl.dataset.at).add(tmp.set(0,-.8,0)),48);
+  if(boomEl.classList.contains('on'))place(boomEl,V3(0,6,-14),60);
   cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);cx.clearRect(0,0,W,H);
   if(confettiOn){bits.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.r+=b.vr*dt;if(b.y>H+20){b.y=-20;b.x=Math.random()*W;}cx.save();cx.translate(b.x,b.y);cx.rotate(b.r);cx.fillStyle=b.c;cx.fillRect(-4,-2.5,8,5);cx.restore();});}
 }
-render();setPlay(true);
-st.over=true;camFly(OV_T,OV_O);setTimeout(()=>{st.over=false;camMode=null;},1400);
+setPlay(true);go(0,false);
+camera.position.copy(OV_T).add(OV_O);controls.target.copy(OV_T);
 requestAnimationFrame(tick);
 })();
 </script>
