@@ -569,6 +569,24 @@ Object.entries(SEATS).forEach(([id,[x,z,r]])=>{let g;const c=CAST[id];
   if(c.fig){g=makeChar(c.fig);g.position.set(x,0,z);}else{g=person(c);g.position.set(x,seatY(id),z);g.rotation.y=r;g.userData.seated=true;g.userData.legs.forEach(l=>l.rotation.x=-1.4);}
   g.userData.base=r;g.userData.lookYaw=r;P[id]=g;});
 const MY_SEAT=new THREE.Vector3(0,0,ROW_Z+1.7);
+/* background coworkers so the office feels busy: seated at desks, typing, and a few in the meeting room */
+const EXTRA_DESKS=[[-20,ROW_Z],[-20,-3],[-12,14],[4,14]];
+EXTRA_DESKS.forEach(([x,z],i)=>desk(x,z,0,{mug:[0x3f9a6e,0xd8382f,0x2f6fd6,0xf2b544][i],plant:i%2===0}));
+const EXTRA_LOOKS=[
+ {top:0xe8e2d6,pants:0x3b3f4c,hair:0x1f1a17,hairStyle:'short'},{top:0x6f8fb8,pants:0x2b2e38,hair:0x3a2a20,hairStyle:'long'},
+ {top:0x2b2e36,pants:0x4a4f60,hair:0x2b1f18,hairStyle:'side',glasses:true},{top:0xc9d6b8,pants:0x5d7fae,hair:0x5a3a2a,hairStyle:'ponytail'},
+ {top:0xf2c7d3,pants:0x3b3f4c,hair:0x1a1512,hairStyle:'long'},{top:0x8a5a3c,pants:0x2b2e38,hair:0x2b2b2b,hairStyle:'short',glasses:true},
+ {top:0x4b5a78,pants:0x6b7fa8,hair:0x4a2c1e,hairStyle:'part'},{top:0xf4e3b5,pants:0x4a4f60,hair:0x2b1f18,hairStyle:'ponytail'},
+ {top:0x7aa982,pants:0x2b2e38,hair:0x1f1a17,hairStyle:'side'},{top:0xb9c7d6,pants:0x3b3f4c,hair:0x3a3a3a,hairStyle:'short',glasses:true},
+ {top:0xe9a23b,pants:0x4a4f60,hair:0x2b1f18,hairStyle:'long'},{top:0x2f4f8a,pants:0x2b2e38,hair:0x5a3a2a,hairStyle:'part'}];
+const EXTRA_SEATS=[[-12,-3+1.4,Math.PI],[-4,-3+1.4,Math.PI],[4,-3+1.4,Math.PI],[-20,ROW_Z+1.4,Math.PI],[-20,-3+1.4,Math.PI],[-16,14+1.4,Math.PI],[-12,14+1.4,Math.PI],[-8,14+1.4,Math.PI],[4,14+1.4,Math.PI],
+  [18.3,-12.4,Math.PI],[23.7,-17.6,0],[21,-17.6,0]];
+const extras=EXTRA_SEATS.map(([x,z,r],i)=>{const o=Object.assign({scale:.82+((i*7)%5)*.02},EXTRA_LOOKS[i%EXTRA_LOOKS.length]);const g=person(o);
+  g.position.set(x,.35*o.scale/.85,z);g.rotation.y=r;g.userData.legs.forEach(l=>l.rotation.x=-1.4);g.userData.ph=i*1.7;g.userData.meet=i>=9;return g;});
+function stepExtras(T){extras.forEach(g=>{const u=g.userData,p=u.ph;
+  if(u.meet){u.head.rotation.y=Math.sin(T*.5+p)*.35;u.arms[0].rotation.x=Math.sin(T*1.3+p)>.6?-.6+Math.sin(T*6)*.2:0;}
+  else{const typing=Math.sin(T*.35+p)>-.3;u.arms.forEach((a,k)=>a.rotation.x=typing?-1.1+Math.sin(T*14+p+k*2)*.06:-.2);
+    u.head.rotation.x=typing?.12:-.05;u.head.rotation.y=typing?0:Math.sin(T*.8+p)*.4;}});}
 
 /* ================= overlay ================= */
 const NO_TAG=['shiun','heeyeon','sunhye'];
@@ -786,11 +804,12 @@ function tick(){
     const u=g.userData;u.lookYaw=yawTo(u.lookYaw,w,Math.min(1,dt*4));if(!u.fig)g.rotation.y=u.lookYaw;pose(g,false,talkWho===id);
     g.position.y=seatY(id)+(st.mood==='angry'&&engaged?Math.abs(Math.sin(T*9+id.length))*.35:st.mood==='love'&&engaged&&talkWho===id?Math.abs(Math.sin(T*6))*.15:0);
     if(!u.fig)u.head.rotation.y=engaged?0:Math.sin(T*.6+id.length)*.2;});
+  if(party&&party.t<6.6)extras.forEach((g,i)=>{g.position.y=.35*.82/.85+Math.abs(Math.sin(T*5+i))*.2;});
   if(party&&party.t<6.6)Object.values(P).forEach((g,i)=>{g.position.y=(g.userData.seated?seatY('boss'):0)+Math.abs(Math.sin(T*5+i*1.3))*.25;});
   if(st.mood==='love'&&st.playing){floatT-=dt;if(floatT<=0){floatT=.22;const f=floaties.find(f=>!f.sp.visible);if(f){const id=['shiun','heeyeon','sunhye'][Math.floor(Math.random()*3)];f.sp.material=SPR[st.mood];f.sp.visible=true;f.t=0;f.sp.position.copy(headPos(id)).add(tmp.set((Math.random()-.5)*1.4,.2,(Math.random()-.5)*.6));}}}
   floaties.forEach(f=>{if(!f.sp.visible)return;f.t+=dt;f.sp.position.y+=dt*1.6;f.sp.scale.setScalar(.8*(1-f.t/2)+.2);if(f.t>1.8)f.sp.visible=false;});
   for(let i=puffs.length-1;i>=0;i--){const m=puffs[i],u=m.userData;u.t+=dt;m.position.addScaledVector(u.v,dt);u.v.multiplyScalar(.95);u.v.y+=dt*(u.life>2?1.5:0);m.scale.setScalar(.6+u.t*(u.grow||2.2));const L=u.life||2.2;m.material.opacity=Math.max(0,.95-u.t/L*.95);if(u.t>L){scene.remove(m);puffs.splice(i,1);}}
-  stepBoom(dt);stepParty(dt);
+  stepBoom(dt);stepParty(dt);stepExtras(T);
   ledA.emissiveIntensity=.4+.6*(Math.sin(T*7)>0?1:0);ledB.emissiveIntensity=.4+.6*(Math.sin(T*5+1)>0?1:0);
   // camera
   if(!st.over&&!boomSeq&&!party){const c=CAMS[s.cam];let tgt;
