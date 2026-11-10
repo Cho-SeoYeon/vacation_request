@@ -114,6 +114,7 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/RoundedBoxGeometry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 /* =====================================================================
    여기만 고치면 돼요: 등장인물 · 대사 (실명 대신 역할/별명만)
@@ -411,7 +412,22 @@ function figure(key){
       p.setZ(i,k*DEPTH*d[(qy*c.width+qx)*4]/255);}p.needsUpdate=true;gg.computeVertexNormals();});};
   img.src='img/'+key+'-depth.png';
   const sd=mesh(new THREE.CircleGeometry(Ww*.5,20),basic(0x1a2236,{transparent:true,opacity:.25,depthWrite:false}),0,.03,0,g,false,false);sd.rotation.x=-Math.PI/2;sd.scale.y=.7;
-  g.userData={fig:true,card,legs,top:Hh,scale:.85,breath:Math.random()*6};scene.add(g);return g;}
+  g.userData={fig:true,card,legs,top:Hh,scale:.85,breath:Math.random()*6};scene.add(g);
+  loadModel(key,g,Hh);return g;}
+/* If models/<name>.glb exists (e.g. made with Meshy or Tripo from the same picture), it replaces the cut-out.
+   Clips whose name contains "walk"/"run" play while walking, "idle" otherwise. MODEL_TURN fixes a model that faces the wrong way. */
+const MODEL_TURN={};
+const gltf=window.THREE.GLTFLoader?new THREE.GLTFLoader():null;
+function loadModel(key,g,Hh){if(!gltf)return;
+  gltf.load('models/'+key+'.glb',res=>{const m=res.scene;m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;if(o.material&&o.material.map)o.material.map.encoding=THREE.sRGBEncoding;}});
+    const box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3());const k=Hh/(size.y||1);m.scale.setScalar(k);
+    box.setFromObject(m);const c=box.getCenter(new THREE.Vector3());m.position.set(-c.x,-box.min.y,-c.z);
+    const holder=new THREE.Group();holder.rotation.y=MODEL_TURN[key]||0;holder.add(m);g.add(holder);g.userData.card.visible=false;
+    const u=g.userData;u.model=holder;
+    if(res.animations&&res.animations.length){u.mixer=new THREE.AnimationMixer(m);const find=re=>res.animations.find(a=>re.test(a.name));
+      u.walkAct=find(/walk|run/i)&&u.mixer.clipAction(find(/walk|run/i));u.idleAct=find(/idle|stand|breath/i)&&u.mixer.clipAction(find(/idle|stand|breath/i));
+      if(!u.walkAct&&!u.idleAct)u.idleAct=u.mixer.clipAction(res.animations[0]);(u.idleAct||u.walkAct).play();u.cur=u.idleAct||u.walkAct;}
+  },undefined,()=>{});}
 const hero=figure('me');hero.visible=false;
 const PANTRY={shiun:[15.4,17.4],heeyeon:[18,18.4],sunhye:[20.6,17.4]};
 const SEATS={s1:[-4,ROW_Z+1.7,0],s2:[4,ROW_Z+1.7,0],lead:[-12,ROW_Z+1.7,0],boss:[3.4,-17.4,0],shiun:[...PANTRY.shiun,0],heeyeon:[...PANTRY.heeyeon,0],sunhye:[...PANTRY.sunhye,0]};
@@ -536,8 +552,10 @@ const floaties=[];for(let i=0;i<14;i++){const sp=new THREE.Sprite(SPR.love);sp.v
 let floatT=0;
 
 /* animation */
-const clock=new THREE.Clock();let phase=0,simT=0;const tmp=V3(0,0,0);let heroYaw=0;
+const clock=new THREE.Clock();let phase=0,simT=0,frameDt=0;const tmp=V3(0,0,0);let heroYaw=0;
 function figAnim(g,walking,talking){const u=g.userData;g.rotation.y=u.lookYaw!=null?u.lookYaw:0;
+  if(u.model){if(u.mixer){const want=walking&&u.walkAct?u.walkAct:(u.idleAct||u.walkAct);if(want!==u.cur){want.reset().play();if(u.cur)u.cur.crossFadeTo(want,.25,false);u.cur=want;}u.mixer.update(frameDt);}
+    u.model.position.y=u.mixer?0:(walking?Math.abs(Math.cos(phase))*.08:talking?Math.abs(Math.sin(phase*1.2))*.05:0);return;}
   const sw=walking?Math.sin(phase)*.5:0;u.legs[0].rotation.x=sw;u.legs[1].rotation.x=-sw;
   u.card.position.y=walking?Math.abs(Math.cos(phase))*.08:talking?Math.abs(Math.sin(phase*1.2))*.05:0;
   u.card.rotation.x=talking?Math.sin(phase*1.4)*.025:0;u.card.rotation.z=0;
@@ -552,7 +570,7 @@ function headPos(id){const g=P[id];if(g.userData.fig)return g.position.clone().s
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 function yawTo(cur,want,k){let d=want-cur;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;return cur+d*k;}
 function tick(){
-  requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05);simT+=dt;const T=simT;phase+=dt*8;
+  requestAnimationFrame(tick);const dt=Math.min(clock.getDelta(),.05);frameDt=dt;simT+=dt;const T=simT;phase+=dt*8;
   const s=STEPS[st.i];let a=st.a;
   if(st.playing&&a){st.at+=dt;
     if(a.t==='drive'){const k=Math.min(1,st.at/4.2);const p=sample(drivePath,ease(k));st.carPos.copy(p.pos);if(p.dir.lengthSq())st.carYaw=yawTo(st.carYaw,Math.atan2(p.dir.x,p.dir.z)+(k>.8?Math.PI:0)*0,Math.min(1,dt*5));a.dur=4.4;}
