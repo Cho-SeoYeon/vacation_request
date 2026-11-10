@@ -31,7 +31,7 @@ body{background:#cfe6f7;color:var(--ink);font-family:var(--f-body);font-size:14p
 .tag.pop{background:#2f6fd6;color:#fff;transition:opacity .2s}
 .bub{position:absolute;left:0;top:0;max-width:min(230px,60vw);font-size:14px;line-height:1.4;background:#fff;color:#2d2a26;padding:8px 12px 9px;border-radius:16px;
   box-shadow:0 6px 18px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;white-space:normal;word-break:keep-all}
-.bub b{display:block;font-family:var(--f-display);font-weight:400;font-size:12px;color:#c0392b;margin-bottom:1px}
+.bub b{display:none;font-family:var(--f-display);font-weight:400;font-size:12px;color:#c0392b;margin-bottom:1px}
 .bub::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
 .bub.me{background:#eaf2ff}.bub.me b{color:var(--accent)}.bub.me::after{border-top-color:#eaf2ff}
 .mutter{position:absolute;left:0;top:0;font-size:12px;font-style:italic;color:#5a5048;background:rgba(255,253,247,.85);padding:4px 10px;border-radius:12px;white-space:nowrap;opacity:0;transition:opacity .4s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
@@ -156,16 +156,16 @@ const SCRIPT={
  lift:[['me','나 진짜 오후 반차 쓴다.','think'],['me','말리지 마라','think']],
  ponder:[['me','말할까… 말까…','think'],['me','그래, 지금이다.','think']],
  s1:[['me','PL님, 저 18일 오후에 반차 좀 써도 될까요?'],
+     ['s1','그래요 써요~ 캘린더에만 올려줘요~'],['me','감사합니다!!'],
      ['s2','와 나 때는 대체휴가 다 못 썼는데…'],['s2','나는 작년에 4개인가 남았던 거 같은데.'],
-     ['me','그러를 그러세요.','think'],
-     ['s1','그래요 써요~ 캘린더에만 올려줘요~'],['me','감사합니다!!']],
+     ['me','그러를 그러세요.','think']],
  lead:[['lead','PL한테 컨펌 받았어요?'],['me','넵. 받았습니다.'],['lead','OK. 올려요.']],
  boss:[['me','지사장님께 결재 상신… 제발!']],
  bossOk:[['me','승인 떴다!!! 🎉']],
  bossNo:[['boss','당일 반차 올리지 마라, 다들.'],['me','에반데 ...']],
  girlsChat:[['shiun','오늘 커피 드시나요?'],['heeyeon','저는 바닐라라떼요 ~~~'],['sunhye','저는 아이스아메리카노요 ㅎㅎ']],
  girlsOk:[['me','주임님들!! 저 18일 오후 반차 승인 났어요!!'],['shiun','와 축하드려요!! 잘 쉬다 오세요 ♡'],['heeyeon','너무 부러워요… 뭐 하실 거예요??'],['sunhye','반차 성공 축하드려요 🎉'],['heeyeon','맛있는 거 드시고 사진 보내 주세요!!'],['sunhye','진짜 부러워요~ 잘 다녀오세요!']],
- girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['heeyeon','네?? 회사 폭파시켜 드릴까요?'],['sunhye','회사 거지같네요!!'],['shiun','회사 바보예요… 제가 혼내 드릴게요!!'],['sunhye','지사장실 쳐들어가요'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
+ girlsNo:[['me','주임님들… 저 반차 반려됐어요 😭'],['heeyeon','네?? 회사 폭파시켜 드릴까요?'],['sunhye','회사 거지같네요!!'],['shiun','회사 진짜 너무하네...'],['sunhye','지사장실 쳐들어가요'],['heeyeon','저희가 대신 화내 드릴게요!!'],['shiun','회사 폭파 3, 2, 1…']]
 };
 
 (async function(){
@@ -601,7 +601,7 @@ const STEPS=[
  {key:'lift',title:'올라가는 엘리베이터 안',who:'속마음',cam:'lift',
   acts:()=>[{t:'liftRide',dur:6},...say(SCRIPT.lift),{t:'liftWait'},walk([[LX,0,LZ],[LX,0,FZ-1],[-21,0,9],[-6,0,8.4],[0,0,7]])]},
  {key:'s1',title:'자리에서 고민하다가…',who:'PL · 사수',cam:'row',
-  acts:()=>[{t:'sit'},...say(SCRIPT.ponder),{t:'face',id:'s1'},...say(SCRIPT.s1),{t:'stamp',box:0,text:'승인',at:'s1'}]},
+  acts:()=>[{t:'sit'},...say(SCRIPT.ponder),{t:'face',id:'s1'},...say(SCRIPT.s1.slice(0,3)),{t:'stamp',box:0,text:'승인',at:'s1'},...say(SCRIPT.s1.slice(3))]},
  {key:'lead',title:'팀장님께',who:'팀장님',cam:'lead',
   acts:()=>[{t:'stand'},walk([[0,0,7],[-6,0,7.4],[-10,0,7.2]]),{t:'face',id:'lead'},...say(SCRIPT.lead),{t:'stamp',box:1,text:'승인',at:'lead'}]},
  {key:'boss',title:'지사장님 결재',who:'지사장님 · 지사장실',cam:'boss',
@@ -676,7 +676,7 @@ const OV_T=V3(0,-3,0),OV_O=V3(60,80,120);
 let fly=null,camKey=null;camera.position.copy(OV_T).add(OV_O);controls.target.copy(OV_T);
 function camFly(t,o){fly={t:0,fT:controls.target.clone(),fO:camera.position.clone().sub(controls.target),tT:t,tO:o};}
 const focus=V3(20,GY,6);
-const CAMS={garage:{o:V3(.42,.16,.9),d:40},lift:{o:V3(.35,.12,.93),d:22},row:{t:V3(0,1.6,5.6),o:V3(.3,.5,.85),d:17},lead:{o:V3(.4,.5,.85),d:18},boss:{t:V3(0,1.5,-6),o:V3(.45,.75,.75),d:48},girls:{t:V3(17.6,1.5,17.4),o:V3(.3,.5,.9),d:24}};
+const CAMS={garage:{o:V3(.42,.16,.9),d:40},lift:{o:V3(.35,.12,.93),d:22},row:{t:V3(0,1.8,5.6),o:V3(.25,.3,.9),d:16},lead:{o:V3(.35,.3,.9),d:15},boss:{t:V3(0,1.5,-6),o:V3(.45,.75,.75),d:48},girls:{t:V3(18,1.8,17.4),o:V3(.2,.28,.9),d:18}};
 
 /* effects */
 const cf=$('#confetti'),cx=cf.getContext('2d');let confettiOn=false,bits=[];
@@ -810,12 +810,12 @@ function tick(){
   renderer.render(scene,camera);
   // overlay
   {const b=bubbles.s2,sp=b&&T-b.t0<b.hold;mutterT+=dt;if(mutterT>3.2){mutterT=0;mutterI=(mutterI+1)%MUTTER.length;mutterEl.textContent=MUTTER[mutterI];}
-    if(!mutterEl.parentNode)overlay.appendChild(mutterEl);const near=s.cam!=='garage'&&s.cam!=='lift';
+    if(!mutterEl.parentNode)overlay.appendChild(mutterEl);const near=s.cam!=='garage'&&s.cam!=='lift'&&!!st.stamps[0];
     if(near&&!sp&&mutterEl.textContent&&mutterT<2.6){mutterEl.style.opacity=.95;place(mutterEl,headPos('s2').add(tmp.set(0,.45,0)),-4);}else mutterEl.style.opacity=0;}
   Object.keys(SEATS).forEach(id=>{const b=bubbles[id];const speaking=b&&T-b.t0<b.hold;const near=s.cam!=='garage'&&s.cam!=='lift'&&!NO_TAG.includes(id);if(near&&!speaking)place(tags[id],headPos(id).add(tmp.set(0,.2,0)));else tags[id].style.display='none';});
   Object.entries(bubbles).forEach(([id,b])=>{const age=T-b.t0;if(age>b.hold){b.el.style.opacity=0;return;}
     const n=Math.min(b.text.length,Math.floor(age*28));b.el.querySelector('span').textContent=b.text.slice(0,n)||'…';b.el.style.opacity=1;
-    place(b.el,headPos(id).add(tmp.set(0,.35,0)),-6-({heeyeon:48}[id]||0));b.el.style.zIndex=String(Math.round(1000-age*10));});
+    place(b.el,headPos(id).add(tmp.set(0,.35,0)),-6);b.el.style.zIndex=String(Math.round(1000-age*10));});
   if(flying)place(docTag,docMesh.position.clone().add(tmp.set(0,1,0)));else docTag.style.display='none';
   if(T-popT<1.8&&popAt){popEl.style.opacity=1;place(popEl,popAt.clone().add(tmp.set(0,1.4+(T-popT)*.6,0)));}else popEl.style.opacity=0;
   if(stampEl.classList.contains('on'))place(stampEl,headPos(stampEl.dataset.at).add(tmp.set(0,-.8,0)),48);
